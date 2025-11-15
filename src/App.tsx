@@ -12,6 +12,8 @@ import Interns from "./pages/Interns";
 import AddIntern from "./pages/AddIntern";
 import EditIntern from "./pages/EditIntern";
 import InternDetail from "./pages/InternDetail";
+import { Analytics } from "./pages/Analytics";
+import { Settings } from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -74,6 +76,26 @@ const App = () => (
                 <ProtectedRoute>
                   <AdminLayout>
                     <EditIntern />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <Analytics />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <Settings />
                   </AdminLayout>
                 </ProtectedRoute>
               }
