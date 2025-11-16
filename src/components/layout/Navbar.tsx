@@ -35,10 +35,43 @@ export const Navbar = () => {
     { id: 3, title: 'System update', message: 'New features are now available', time: '3h ago', type: 'info', unread: false }
   ]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleClose = () => {
+      setNotificationOpen(false);
+      setProfileOpen(false);
+    };
+
+    // Scroll events
+    window.addEventListener('scroll', handleClose, { passive: true });
+    document.addEventListener('scroll', handleClose, { passive: true });
+    
+    // Touch move events for mobile scrolling (not touchstart to avoid immediate close)
+    document.addEventListener('touchmove', handleClose, { passive: true });
+    
+    // Main content scroll
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+      mainContent.addEventListener('scroll', handleClose, { passive: true });
+      mainContent.addEventListener('touchmove', handleClose, { passive: true });
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleClose);
+      document.removeEventListener('scroll', handleClose);
+      document.removeEventListener('touchmove', handleClose);
+      if (mainContent) {
+        mainContent.removeEventListener('scroll', handleClose);
+        mainContent.removeEventListener('touchmove', handleClose);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -189,7 +222,7 @@ export const Navbar = () => {
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
 
-          <DropdownMenu>
+          <DropdownMenu open={notificationOpen} onOpenChange={setNotificationOpen}>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
@@ -257,7 +290,7 @@ export const Navbar = () => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
+          <DropdownMenu open={profileOpen} onOpenChange={setProfileOpen}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">

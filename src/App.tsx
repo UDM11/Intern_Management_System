@@ -102,7 +102,14 @@ const App = () => (
             />
 
             {/* Catch all */}
-            <Route path="*" element={<NotFound />} />
+            <Route 
+              path="*" 
+              element={
+                <AdminLayout>
+                  <NotFound />
+                </AdminLayout>
+              } 
+            />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
