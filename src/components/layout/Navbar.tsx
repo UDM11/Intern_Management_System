@@ -1,8 +1,7 @@
-import { Bell, User, Search, Settings, LogOut, Moon, Sun, X, Shield, HelpCircle } from 'lucide-react';
+import { User, Search, Settings, LogOut, Moon, Sun, X, Shield, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { NotificationCenter } from '@/components/NotificationCenter';
 import { toast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -29,13 +29,7 @@ export const Navbar = () => {
   });
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'New intern registered', message: 'John Doe has been added to the system', time: '2m ago', type: 'info', unread: true },
-    { id: 2, title: 'Internship completed', message: 'Sarah Smith completed her internship', time: '1h ago', type: 'success', unread: true },
-    { id: 3, title: 'System update', message: 'New features are now available', time: '3h ago', type: 'info', unread: false }
-  ]);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [notificationOpen, setNotificationOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
@@ -45,7 +39,6 @@ export const Navbar = () => {
 
   useEffect(() => {
     const handleClose = () => {
-      setNotificationOpen(false);
       setProfileOpen(false);
     };
 
@@ -128,28 +121,7 @@ export const Navbar = () => {
     }
   };
 
-  const handleNotificationClick = (notificationId: number) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, unread: false }
-          : notif
-      )
-    );
-    toast({
-      title: 'Notification opened',
-      description: 'Marked as read',
-      duration: 2000,
-    });
-  };
 
-  const clearAllNotifications = () => {
-    setNotifications(prev => prev.map(notif => ({ ...notif, unread: false })));
-    toast({
-      title: 'All notifications marked as read',
-      duration: 2000,
-    });
-  };
 
   const handleProfileClick = () => {
     toast({
@@ -170,8 +142,6 @@ export const Navbar = () => {
       duration: 2000,
     });
   };
-
-  const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -222,73 +192,7 @@ export const Navbar = () => {
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
 
-          <DropdownMenu open={notificationOpen} onOpenChange={setNotificationOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative hover:bg-accent transition-colors"
-                title="Notifications"
-              >
-                <Bell className="h-4 w-4" />
-                {unreadCount > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center animate-pulse"
-                  >
-                    {unreadCount}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
-              <DropdownMenuLabel className="flex items-center justify-between">
-                <span>Notifications</span>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{notifications.length}</Badge>
-                  {unreadCount > 0 && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-6 px-2 text-xs"
-                      onClick={clearAllNotifications}
-                    >
-                      Mark all read
-                    </Button>
-                  )}
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {notifications.length > 0 ? (
-                notifications.map((notification) => (
-                  <DropdownMenuItem 
-                    key={notification.id}
-                    className="flex flex-col items-start p-4 cursor-pointer hover:bg-accent"
-                    onClick={() => handleNotificationClick(notification.id)}
-                  >
-                    <div className="flex items-center gap-2 w-full">
-                      <div className={`h-2 w-2 rounded-full ${
-                        notification.unread 
-                          ? notification.type === 'success' ? 'bg-green-500' : 'bg-blue-500'
-                          : 'bg-muted-foreground/30'
-                      }`} />
-                      <span className={`font-medium text-sm ${
-                        notification.unread ? 'text-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {notification.title}
-                      </span>
-                      <span className="text-xs text-muted-foreground ml-auto">{notification.time}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 pl-4">{notification.message}</p>
-                  </DropdownMenuItem>
-                ))
-              ) : (
-                <div className="p-4 text-center text-muted-foreground text-sm">
-                  No notifications
-                </div>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NotificationCenter />
 
           <DropdownMenu open={profileOpen} onOpenChange={setProfileOpen}>
             <DropdownMenuTrigger asChild>
