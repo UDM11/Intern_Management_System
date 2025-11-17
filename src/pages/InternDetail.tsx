@@ -1,10 +1,32 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit, Trash2, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  CheckCircle2, 
+  Clock, 
+  AlertCircle,
+  User,
+  Mail,
+  Phone,
+  Building2,
+  Calendar,
+  Award,
+  Target,
+  TrendingUp,
+  Activity,
+  MoreVertical,
+  Eye,
+  Star
+} from 'lucide-react';
 import { internService, Intern, Task } from '@/services/internService';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
@@ -13,6 +35,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -158,13 +187,48 @@ const InternDetail = () => {
     }
   };
 
+  const getStatusBadge = (status: Task['status']) => {
+    const variants = {
+      completed: 'bg-success text-success-foreground',
+      pending: 'bg-warning text-warning-foreground',
+      overdue: 'bg-destructive text-destructive-foreground'
+    };
+    return variants[status] || 'bg-muted';
+  };
+
+  const getDepartmentColor = (dept: string) => {
+    const colors = {
+      'Engineering': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      'Marketing': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'Design': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      'Sales': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+    };
+    return colors[dept as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+  };
+
+  const completionRate = tasks.length > 0 ? (tasks.filter(t => t.status === 'completed').length / tasks.length) * 100 : 0;
+
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-64" />
-        <div className="grid gap-6 md:grid-cols-2">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-10 w-10 rounded-md" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-96 w-full" />
+            </div>
+            <div className="space-y-6">
+              <Skeleton className="h-80 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -173,209 +237,377 @@ const InternDetail = () => {
   if (!intern) return null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/interns')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{intern.fullName}</h1>
-            <p className="text-muted-foreground">{intern.email}</p>
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 animate-slide-in-left">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/interns')}
+              className="hover-lift"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 hover-scale transition-smooth">
+                <AvatarImage src="" />
+                <AvatarFallback className="text-xl font-bold">
+                  {intern.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl font-bold gradient-text">{intern.fullName}</h1>
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  {intern.email}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 animate-slide-in-right">
+            <Button 
+              variant="outline"
+              onClick={() => navigate(`/interns/${id}/edit`)}
+              className="hover-lift"
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Profile
+            </Button>
           </div>
         </div>
-        <Button onClick={() => navigate(`/interns/${id}/edit`)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Edit Profile
-        </Button>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Phone</p>
-              <p className="font-medium">{intern.phone}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Department</p>
-              <p className="font-medium">{intern.department}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Join Date</p>
-              <p className="font-medium">{new Date(intern.joinDate).toLocaleDateString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Status</p>
-              <Badge variant={intern.status === 'active' ? 'default' : 'secondary'} className={intern.status === 'active' ? 'bg-success' : ''}>
-                {intern.status}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Task Statistics</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total Tasks</span>
-              <span className="font-bold">{tasks.length}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Completed</span>
-              <span className="font-bold text-success">
-                {tasks.filter((t) => t.status === 'completed').length}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Pending</span>
-              <span className="font-bold text-warning">
-                {tasks.filter((t) => t.status === 'pending').length}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Overdue</span>
-              <span className="font-bold text-destructive">
-                {tasks.filter((t) => t.status === 'overdue').length}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Tasks</CardTitle>
-            <Button onClick={() => openTaskModal()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Task
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Tasks</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-4">
-            {getFilteredTasks().length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No tasks found</p>
-            ) : (
-              getFilteredTasks().map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-start gap-4 rounded-lg border border-border p-4 transition-smooth hover:shadow-custom"
-                >
-                  <div className="mt-1">{getStatusIcon(task.status)}</div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{task.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Deadline: {new Date(task.deadline).toLocaleDateString()}
-                    </p>
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Profile Overview */}
+            <Card className="hover-lift transition-smooth animate-slide-up">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Profile Overview
+                </CardTitle>
+                <CardDescription>
+                  Comprehensive intern profile information
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      Phone
+                    </div>
+                    <p className="font-medium">{intern.phone}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleMarkComplete(task)}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Building2 className="h-4 w-4" />
+                      Department
+                    </div>
+                    <Badge variant="outline" className={getDepartmentColor(intern.department)}>
+                      {intern.department}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      Join Date
+                    </div>
+                    <p className="font-medium">{new Date(intern.joinDate).toLocaleDateString()}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Activity className="h-4 w-4" />
+                      Status
+                    </div>
+                    <Badge 
+                      variant={intern.status === 'active' ? 'default' : 'secondary'} 
+                      className={intern.status === 'active' ? 'bg-success hover:bg-success/80' : ''}
                     >
-                      <CheckCircle2 className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => openTaskModal(task)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteTask(task.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                      {intern.status}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Target className="h-4 w-4" />
+                      Completion Rate
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-medium">{completionRate.toFixed(1)}%</p>
+                      <Progress value={completionRate} className="h-2" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Award className="h-4 w-4" />
+                      Total Tasks
+                    </div>
+                    <p className="font-medium text-2xl">{tasks.length}</p>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
 
-      <Dialog open={isTaskModalOpen} onOpenChange={setIsTaskModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingTask ? 'Edit Task' : 'Add New Task'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={taskForm.title}
-                onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={taskForm.description}
-                onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="deadline">Deadline</Label>
-              <Input
-                id="deadline"
-                type="date"
-                value={taskForm.deadline}
-                onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={taskForm.status}
-                onValueChange={(value: Task['status']) =>
-                  setTaskForm({ ...taskForm, status: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="overdue">Overdue</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Tasks Section */}
+            <Card className="hover-lift transition-smooth animate-slide-up">
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5" />
+                      Tasks & Assignments
+                    </CardTitle>
+                    <CardDescription>
+                      Manage and track intern tasks and progress
+                    </CardDescription>
+                  </div>
+                  <Button 
+                    onClick={() => openTaskModal()}
+                    className="hover-lift hover-glow"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Task
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6">
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Tasks</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="overdue">Overdue</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-4">
+                  {getFilteredTasks().length === 0 ? (
+                    <div className="text-center py-12">
+                      <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">No tasks found</p>
+                      <p className="text-sm text-muted-foreground">
+                        {filterStatus === 'all' ? 'Add a task to get started' : `No ${filterStatus} tasks`}
+                      </p>
+                    </div>
+                  ) : (
+                    getFilteredTasks().map((task, index) => (
+                      <div 
+                        key={task.id} 
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-smooth animate-scale-in"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(task.status)}
+                            <Badge className={getStatusBadge(task.status)}>
+                              {task.status}
+                            </Badge>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium truncate">{task.title}</h4>
+                            <p className="text-sm text-muted-foreground truncate">{task.description}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Due: {new Date(task.deadline).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleMarkComplete(task)}
+                            className="hover-lift"
+                          >
+                            {task.status === 'completed' ? 'Mark Pending' : 'Mark Complete'}
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openTaskModal(task)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Task
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteTask(task.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Task
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsTaskModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleTaskSubmit}>
-              {editingTask ? 'Update' : 'Create'} Task
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Task Statistics */}
+            <Card className="hover-lift transition-smooth animate-slide-up">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Task Statistics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-success" />
+                    <span className="text-sm font-medium">Completed</span>
+                  </div>
+                  <span className="font-bold text-success">
+                    {tasks.filter((t) => t.status === 'completed').length}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-warning" />
+                    <span className="text-sm font-medium">Pending</span>
+                  </div>
+                  <span className="font-bold text-warning">
+                    {tasks.filter((t) => t.status === 'pending').length}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-destructive" />
+                    <span className="text-sm font-medium">Overdue</span>
+                  </div>
+                  <span className="font-bold text-destructive">
+                    {tasks.filter((t) => t.status === 'overdue').length}
+                  </span>
+                </div>
+                <div className="pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Completion Rate</span>
+                    <span className="font-bold">{completionRate.toFixed(1)}%</span>
+                  </div>
+                  <Progress value={completionRate} className="mt-2 h-2" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card className="hover-lift transition-smooth animate-slide-up">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  Quick Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start hover-lift"
+                  onClick={() => navigate(`/interns/${id}/edit`)}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Profile
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start hover-lift"
+                  onClick={() => openTaskModal()}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add New Task
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start hover-lift"
+                  onClick={() => navigate('/interns')}
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  View All Interns
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Task Modal */}
+        <Dialog open={isTaskModalOpen} onOpenChange={setIsTaskModalOpen}>
+          <DialogContent className="animate-scale-in">
+            <DialogHeader>
+              <DialogTitle>
+                {editingTask ? 'Edit Task' : 'Add New Task'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Task Title</Label>
+                <Input
+                  id="title"
+                  value={taskForm.title}
+                  onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                  placeholder="Enter task title"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={taskForm.description}
+                  onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                  placeholder="Enter task description"
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="deadline">Deadline</Label>
+                <Input
+                  id="deadline"
+                  type="date"
+                  value={taskForm.deadline}
+                  onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={taskForm.status}
+                  onValueChange={(value: Task['status']) => setTaskForm({ ...taskForm, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsTaskModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleTaskSubmit} className="hover-lift">
+                {editingTask ? 'Update Task' : 'Create Task'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

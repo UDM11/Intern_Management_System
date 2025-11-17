@@ -1,53 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Users, UserCheck, Clock, CheckCircle2, TrendingUp, Calendar, 
-  Bell, Settings, Plus, Search, Filter, Download, RefreshCw,
-  BarChart3, PieChart, Activity, Target, Award, AlertTriangle,
-  ChevronRight, Eye, Edit, Trash2, MoreHorizontal
+  Users, UserCheck, Clock, CheckCircle2, TrendingUp, 
+  Plus, Activity, Award, AlertTriangle, ChevronRight, Eye
 } from 'lucide-react';
-import { StatCard } from '@/components/StatCard';
 import { internService } from '@/services/internService';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
-import { QuickActionsWidget } from '@/components/QuickActionsWidget';
-import { PerformanceMetrics } from '@/components/PerformanceMetrics';
-import { DashboardChart } from '@/components/DashboardChart';
 
 interface DashboardStats {
   totalInterns: number;
   activeInterns: number;
   pendingTasks: number;
   completedTasks: number;
-  newThisMonth: number;
-  completionRate: number;
-  avgTasksPerIntern: number;
-  upcomingDeadlines: number;
 }
 
 interface RecentActivity {
   id: string;
-  type: 'intern_joined' | 'task_completed' | 'task_assigned' | 'deadline_approaching';
   message: string;
   timestamp: string;
-  priority: 'low' | 'medium' | 'high';
+  type: 'success' | 'warning' | 'info';
 }
 
 interface TopPerformer {
@@ -55,7 +31,7 @@ interface TopPerformer {
   name: string;
   department: string;
   completedTasks: number;
-  avatar?: string;
+  completionRate: number;
 }
 
 const Dashboard = () => {
@@ -65,44 +41,32 @@ const Dashboard = () => {
     activeInterns: 0,
     pendingTasks: 0,
     completedTasks: 0,
-    newThisMonth: 0,
-    completionRate: 0,
-    avgTasksPerIntern: 0,
-    upcomingDeadlines: 0,
   });
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
   const [topPerformers, setTopPerformers] = useState<TopPerformer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterPeriod, setFilterPeriod] = useState('7d');
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
-    const interval = setInterval(loadDashboardData, 30000); // Refresh every 30 seconds
-    return () => clearInterval(interval);
   }, []);
 
   const loadDashboardData = async () => {
     try {
       setIsLoading(true);
-      const [statsData, activitiesData, performersData] = await Promise.all([
-        internService.getDashboardStats(),
-        loadRecentActivities(),
-        loadTopPerformers(),
+      const statsData = await internService.getDashboardStats();
+      setStats(statsData);
+      setRecentActivities([
+        { id: '1', message: 'Sarah Johnson joined Engineering team', timestamp: '2 hours ago', type: 'success' },
+        { id: '2', message: 'Mike Chen completed API Documentation', timestamp: '4 hours ago', type: 'success' },
+        { id: '3', message: 'Project deadline approaching for Emma Davis', timestamp: '6 hours ago', type: 'warning' },
+        { id: '4', message: 'New task assigned to Alex Rodriguez', timestamp: '8 hours ago', type: 'info' },
       ]);
-      
-      setStats({
-        ...statsData,
-        newThisMonth: Math.floor(Math.random() * 15) + 5,
-        completionRate: Math.floor(Math.random() * 30) + 70,
-        avgTasksPerIntern: Math.floor(Math.random() * 5) + 3,
-        upcomingDeadlines: Math.floor(Math.random() * 10) + 2,
-      });
-      setRecentActivities(activitiesData);
-      setTopPerformers(performersData);
+      setTopPerformers([
+        { id: '1', name: 'Alice Cooper', department: 'Engineering', completedTasks: 24, completionRate: 95 },
+        { id: '2', name: 'Bob Wilson', department: 'Design', completedTasks: 18, completionRate: 88 },
+        { id: '3', name: 'Carol Brown', department: 'Marketing', completedTasks: 15, completionRate: 82 },
+      ]);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
       toast({
         title: 'Error',
         description: 'Failed to load dashboard data',
@@ -113,106 +77,38 @@ const Dashboard = () => {
     }
   };
 
-  const loadRecentActivities = async (): Promise<RecentActivity[]> => {
-    // Mock data - replace with actual API call
-    return [
-      {
-        id: '1',
-        type: 'intern_joined',
-        message: 'Sarah Johnson joined the Engineering team',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-        priority: 'medium',
-      },
-      {
-        id: '2',
-        type: 'task_completed',
-        message: 'Mike Chen completed "API Documentation" task',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-        priority: 'low',
-      },
-      {
-        id: '3',
-        type: 'deadline_approaching',
-        message: 'Project deadline in 2 days for Emma Davis',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-        priority: 'high',
-      },
-      {
-        id: '4',
-        type: 'task_assigned',
-        message: 'New task assigned to Alex Rodriguez',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-        priority: 'medium',
-      },
-    ];
-  };
-
-  const loadTopPerformers = async (): Promise<TopPerformer[]> => {
-    // Mock data - replace with actual API call
-    return [
-      { id: '1', name: 'Alice Cooper', department: 'Engineering', completedTasks: 24 },
-      { id: '2', name: 'Bob Wilson', department: 'Design', completedTasks: 18 },
-      { id: '3', name: 'Carol Brown', department: 'Marketing', completedTasks: 15 },
-    ];
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await loadDashboardData();
-    setIsRefreshing(false);
-    toast({
-      title: 'Success',
-      description: 'Dashboard data refreshed',
-    });
-  };
-
   const getActivityIcon = (type: RecentActivity['type']) => {
     switch (type) {
-      case 'intern_joined': return <Users className="h-4 w-4" />;
-      case 'task_completed': return <CheckCircle2 className="h-4 w-4" />;
-      case 'task_assigned': return <Clock className="h-4 w-4" />;
-      case 'deadline_approaching': return <AlertTriangle className="h-4 w-4" />;
+      case 'success': return <CheckCircle2 className="h-4 w-4 text-success" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-warning" />;
+      case 'info': return <Activity className="h-4 w-4 text-primary" />;
     }
   };
 
-  const getPriorityColor = (priority: RecentActivity['priority']) => {
-    switch (priority) {
-      case 'high': return 'bg-destructive';
-      case 'medium': return 'bg-warning';
-      case 'low': return 'bg-success';
-    }
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const time = new Date(timestamp);
-    const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  const getDepartmentColor = (dept: string) => {
+    const colors = {
+      'Engineering': 'bg-blue-100 text-blue-800',
+      'Marketing': 'bg-green-100 text-green-800',
+      'Design': 'bg-purple-100 text-purple-800',
+      'Sales': 'bg-orange-100 text-orange-800',
+    };
+    return colors[dept as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-48 mb-2" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-          <Skeleton className="h-10 w-32" />
-        </div>
-        
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="space-y-6 animate-fade-in">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-32 w-full" />
-          ))}
-        </div>
-        
-        <div className="grid gap-6 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-80 w-full" />
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-20 bg-muted rounded" />
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
@@ -220,174 +116,105 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Welcome back! Here's what's happening with your interns today.
-          </p>
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-slide-in-left">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Welcome back! Here's your intern management overview.</p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button
-            onClick={() => navigate('/interns/add')}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Intern
-          </Button>
-        </div>
+        <Button onClick={() => navigate('/interns/add')} className="hover-lift hover-glow">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Intern
+        </Button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Total Interns"
-          value={stats.totalInterns}
-          icon={Users}
-          description="All registered interns"
-          trend={{ value: 12, isPositive: true }}
-        />
-        <StatCard
-          title="Active Interns"
-          value={stats.activeInterns}
-          icon={UserCheck}
-          description="Currently active"
-          trend={{ value: 8, isPositive: true }}
-        />
-        <StatCard
-          title="Pending Tasks"
-          value={stats.pendingTasks}
-          icon={Clock}
-          description="Tasks in progress"
-          trend={{ value: 5, isPositive: false }}
-        />
-        <StatCard
-          title="Completed Tasks"
-          value={stats.completedTasks}
-          icon={CheckCircle2}
-          description="Tasks finished"
-          trend={{ value: 15, isPositive: true }}
-        />
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">New This Month</CardTitle>
-            <TrendingUp className="h-5 w-5 text-success" />
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-slide-up">
+        <Card className="hover-lift transition-smooth">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Interns</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-success">{stats.newThisMonth}</div>
-            <p className="text-xs text-muted-foreground mt-1">+23% from last month</p>
+            <div className="text-2xl font-bold">{stats.totalInterns}</div>
+            <p className="text-xs text-muted-foreground">All registered interns</p>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Completion Rate</CardTitle>
-            <Target className="h-5 w-5 text-primary" />
+        <Card className="hover-lift transition-smooth">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Interns</CardTitle>
+            <UserCheck className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">{stats.completionRate}%</div>
-            <p className="text-xs text-muted-foreground mt-1">Above average</p>
+            <div className="text-2xl font-bold text-success">{stats.activeInterns}</div>
+            <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Tasks/Intern</CardTitle>
-            <BarChart3 className="h-5 w-5 text-warning" />
+        <Card className="hover-lift transition-smooth">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
+            <Clock className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-warning">{stats.avgTasksPerIntern}</div>
-            <p className="text-xs text-muted-foreground mt-1">Optimal workload</p>
+            <div className="text-2xl font-bold text-warning">{stats.pendingTasks}</div>
+            <p className="text-xs text-muted-foreground">Tasks in progress</p>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Upcoming Deadlines</CardTitle>
-            <Calendar className="h-5 w-5 text-destructive" />
+        <Card className="hover-lift transition-smooth">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completed Tasks</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-destructive">{stats.upcomingDeadlines}</div>
-            <p className="text-xs text-muted-foreground mt-1">Next 7 days</p>
+            <div className="text-2xl font-bold text-success">{stats.completedTasks}</div>
+            <p className="text-xs text-muted-foreground">Tasks finished</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-12">
+      {/* Main Content */}
+      <div className="grid gap-6 lg:grid-cols-3 animate-slide-up">
         {/* Recent Activity */}
-        <Card className="lg:col-span-8">
+        <Card className="lg:col-span-2 hover-lift transition-smooth">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <Select value={filterPeriod} onValueChange={setFilterPeriod}>
-                  <SelectTrigger className="w-24 h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1d">1d</SelectItem>
-                    <SelectItem value="7d">7d</SelectItem>
-                    <SelectItem value="30d">30d</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="ghost" size="sm">
-                  <Bell className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Recent Activity
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 max-h-80 overflow-y-auto">
-              {recentActivities.map((activity) => (
+            <div className="space-y-4">
+              {recentActivities.map((activity, index) => (
                 <div 
                   key={activity.id} 
-                  className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className={`p-2 rounded-full ${getPriorityColor(activity.priority)} text-white`}>
+                  <div className="flex-shrink-0">
                     {getActivityIcon(activity.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{activity.message}</p>
-                    <p className="text-xs text-muted-foreground">{formatTimeAgo(activity.timestamp)}</p>
+                    <p className="text-sm font-medium truncate">{activity.message}</p>
+                    <p className="text-xs text-muted-foreground">{activity.timestamp}</p>
                   </div>
-                  <Badge variant={activity.priority === 'high' ? 'destructive' : activity.priority === 'medium' ? 'default' : 'secondary'}>
-                    {activity.priority}
-                  </Badge>
                 </div>
               ))}
             </div>
             <div className="mt-4 pt-4 border-t">
-              <Button variant="ghost" className="w-full" onClick={() => navigate('/analytics')}>
-                View All Activity
-                <ChevronRight className="h-4 w-4 ml-2" />
+              <Button variant="ghost" className="w-full hover-lift" onClick={() => navigate('/interns')}>
+                View All Interns
+                <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Top Performers */}
-        <Card className="lg:col-span-4">
+        <Card className="hover-lift transition-smooth">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Award className="h-5 w-5" />
@@ -399,87 +226,42 @@ const Dashboard = () => {
               {topPerformers.map((performer, index) => (
                 <div 
                   key={performer.id} 
-                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer"
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer animate-fade-in"
+                  style={{ animationDelay: `${index * 150}ms` }}
                   onClick={() => navigate(`/interns/${performer.id}`)}
                 >
-                  <div className="relative">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white font-semibold">
-                      {performer.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    {index === 0 && (
-                      <div className="absolute -top-1 -right-1 h-4 w-4 bg-warning rounded-full flex items-center justify-center">
-                        <Award className="h-2 w-2 text-white" />
-                      </div>
-                    )}
-                  </div>
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
+                      {getInitials(performer.name)}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{performer.name}</p>
-                    <p className="text-xs text-muted-foreground">{performer.department}</p>
+                    <p className="text-sm font-medium truncate">{performer.name}</p>
+                    <Badge variant="outline" className={`text-xs ${getDepartmentColor(performer.department)}`}>
+                      {performer.department}
+                    </Badge>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-success">{performer.completedTasks}</p>
+                    <p className="text-sm font-bold">{performer.completedTasks}</p>
                     <p className="text-xs text-muted-foreground">tasks</p>
+                    <Progress value={performer.completionRate} className="w-12 h-1 mt-1" />
                   </div>
                 </div>
               ))}
             </div>
             <div className="mt-4 pt-4 border-t">
-              <Button variant="ghost" className="w-full" onClick={() => navigate('/interns')}>
-                View All Interns
-                <ChevronRight className="h-4 w-4 ml-2" />
+              <Button variant="ghost" className="w-full hover-lift" onClick={() => navigate('/interns')}>
+                View All Performers
+                <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts and Analytics Section */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-2">
-        <DashboardChart
-          title="Task Completion Trends"
-          type="line"
-          data={{
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-              label: 'Completed Tasks',
-              data: [65, 78, 90, 81, 95, 102],
-              borderColor: 'hsl(var(--primary))',
-              backgroundColor: 'hsl(var(--primary) / 0.1)'
-            }]
-          }}
-          height={250}
-        />
-        
-        <DashboardChart
-          title="Department Distribution"
-          type="pie"
-          data={{
-            labels: ['Engineering', 'Design', 'Marketing', 'HR', 'Sales'],
-            datasets: [{
-              label: 'Interns by Department',
-              data: [35, 25, 20, 12, 8],
-              backgroundColor: [
-                'hsl(var(--primary))',
-                'hsl(var(--success))',
-                'hsl(var(--warning))',
-                'hsl(var(--destructive))',
-                'hsl(var(--muted-foreground))'
-              ]
-            }]
-          }}
-          height={250}
-        />
-      </div>
-
-      {/* Performance and Actions Section */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <PerformanceMetrics className="lg:col-span-2" />
-        <QuickActionsWidget />
-      </div>
-
-      {/* Quick Actions Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="cursor-pointer" onClick={() => navigate('/interns/add')}>
+      {/* Quick Actions */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
+        <Card className="cursor-pointer hover-lift transition-smooth" onClick={() => navigate('/interns/add')}>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-full bg-primary/10">
@@ -493,7 +275,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer" onClick={() => navigate('/interns')}>
+        <Card className="cursor-pointer hover-lift transition-smooth" onClick={() => navigate('/interns')}>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-full bg-success/10">
@@ -507,29 +289,15 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer" onClick={() => navigate('/analytics')}>
+        <Card className="cursor-pointer hover-lift transition-smooth" onClick={() => navigate('/interns')}>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-full bg-warning/10">
-                <PieChart className="h-6 w-6 text-warning" />
+                <TrendingUp className="h-6 w-6 text-warning" />
               </div>
               <div>
-                <h3 className="font-semibold">Analytics</h3>
-                <p className="text-sm text-muted-foreground">View detailed reports</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="cursor-pointer" onClick={() => navigate('/settings')}>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-muted">
-                <Settings className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Settings</h3>
-                <p className="text-sm text-muted-foreground">Configure system</p>
+                <h3 className="font-semibold">Performance</h3>
+                <p className="text-sm text-muted-foreground">View analytics</p>
               </div>
             </div>
           </CardContent>
