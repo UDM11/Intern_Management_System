@@ -1,40 +1,73 @@
-import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+class ApiClient {
+  private baseURL: string;
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
+  }
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
+  private async request(endpoint: string, options: RequestInit = {}) {
     const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+    const url = `${this.baseURL}${endpoint}`;
+    
+    const config: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+      },
+      ...options,
+    };
 
-// Response interceptor to handle errors
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+    try {
+      const response = await fetch(url, config);
+      
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        throw new Error('Unauthorized');
+      }
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async get(endpoint: string) {
+    const response = await this.request(endpoint);
+    return { data: await response.json() };
+  }
+
+  async post(endpoint: string, data?: any) {
+    const response = await this.request(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return { data: await response.json() };
+  }
+
+  async put(endpoint: string, data?: any) {
+    const response = await this.request(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return { data: await response.json() };
+  }
+
+  async delete(endpoint: string) {
+    const response = await this.request(endpoint, {
+      method: 'DELETE',
+    });
+    return { data: await response.json() };
+  }
+}
+
+const api = new ApiClient(API_BASE_URL);
 export default api;
