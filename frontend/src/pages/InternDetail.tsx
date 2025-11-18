@@ -82,8 +82,8 @@ const InternDetail = () => {
     try {
       setIsLoading(true);
       const [internData, tasksData] = await Promise.all([
-        internService.getInternById(id),
-        internService.getInternTasks(id),
+        internService.getInternById(parseInt(id)),
+        internService.getInternTasks(parseInt(id)),
       ]);
       setIntern(internData);
       setTasks(tasksData);
@@ -128,7 +128,7 @@ const InternDetail = () => {
         await internService.updateTask(editingTask.id, taskForm);
         toast({ title: 'Success', description: 'Task updated successfully' });
       } else {
-        await internService.createTask({ ...taskForm, internId: id });
+        await internService.createTask({ ...taskForm, intern_id: parseInt(id) });
         toast({ title: 'Success', description: 'Task created successfully' });
       }
       setIsTaskModalOpen(false);
@@ -142,7 +142,7 @@ const InternDetail = () => {
     }
   };
 
-  const handleDeleteTask = async (taskId: string) => {
+  const handleDeleteTask = async (taskId: number) => {
     try {
       await internService.deleteTask(taskId);
       toast({ title: 'Success', description: 'Task deleted successfully' });
@@ -254,11 +254,11 @@ const InternDetail = () => {
               <Avatar className="h-16 w-16 hover-scale transition-smooth">
                 <AvatarImage src="" />
                 <AvatarFallback className="text-xl font-bold">
-                  {intern.fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  {intern.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-3xl font-bold gradient-text">{intern.fullName}</h1>
+                <h1 className="text-3xl font-bold gradient-text">{intern.full_name}</h1>
                 <p className="text-muted-foreground flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   {intern.email}
@@ -315,7 +315,7 @@ const InternDetail = () => {
                       <Calendar className="h-4 w-4" />
                       Join Date
                     </div>
-                    <p className="font-medium">{new Date(intern.joinDate).toLocaleDateString()}</p>
+                    <p className="font-medium">{new Date(intern.join_date).toLocaleDateString()}</p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">

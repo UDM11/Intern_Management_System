@@ -7,6 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminLayout } from "@/layouts/AdminLayout";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Interns from "./pages/Interns";
 import AddIntern from "./pages/AddIntern";
@@ -28,6 +29,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             
             {/* Protected Routes */}
             <Route

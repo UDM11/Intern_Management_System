@@ -1,48 +1,56 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import { authService } from '@/services/authService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, Mail, Lock, Eye, EyeOff, Shield, Users, TrendingUp, Sparkles } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Eye, EyeOff, Shield, Users, TrendingUp, Sparkles, UserPlus } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Register = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [mounted, setMounted] = useState(false);
   
-  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate('/dashboard');
-    return null;
-  }
-
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: Record<string, string> = {};
     
-    if (!email) {
+    if (!formData.username.trim()) {
+      newErrors.username = 'Username is required';
+    } else if (formData.username.length < 3) {
+      newErrors.username = 'Username must be at least 3 characters';
+    }
+    
+    if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
     
-    if (!password) {
+    if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
+    } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
     }
     
     setErrors(newErrors);
@@ -56,18 +64,35 @@ const Login = () => {
     
     setIsLoading(true);
     try {
-      await login(email, password);
-    } catch (error) {
-      console.error('Login error:', error);
+      await authService.register(formData.username, formData.email, formData.password);
+      toast({
+        title: 'Success!',
+        description: 'Account created successfully. Please login.',
+      });
+      navigate('/login');
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to create account. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const updateFormData = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
   const features = [
-    { icon: Users, text: "Manage Interns", color: "bg-blue-500" },
-    { icon: TrendingUp, text: "Track Progress", color: "bg-green-500" },
-    { icon: Shield, text: "Secure Platform", color: "bg-purple-500" }
+    { icon: Users, text: "Join the Team", color: "bg-blue-500" },
+    { icon: TrendingUp, text: "Track Your Growth", color: "bg-green-500" },
+    { icon: Shield, text: "Secure Account", color: "bg-purple-500" }
   ];
 
   return (
@@ -96,13 +121,13 @@ const Login = () => {
             </div>
             
             <p className="text-base xl:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
-              Streamline your internship program with our comprehensive management system. 
-              Track progress, assign tasks, and manage interns efficiently.
+              Join our comprehensive internship management system. Create your account to start 
+              tracking progress, managing tasks, and growing your career.
             </p>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg xl:text-xl font-semibold text-slate-800 dark:text-slate-200">Key Features</h3>
+            <h3 className="text-lg xl:text-xl font-semibold text-slate-800 dark:text-slate-200">What You'll Get</h3>
             <div className="space-y-3">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
@@ -121,35 +146,33 @@ const Login = () => {
               })}
             </div>
           </div>
-
-
         </div>
 
-        {/* Right Side - Login Form */}
+        {/* Right Side - Register Form */}
         <div className={`w-full max-w-md mx-auto lg:mx-0 px-4 sm:px-0 ${mounted ? 'animate-in fade-in zoom-in-95 duration-700 lg:animate-in lg:slide-in-from-right lg:duration-1000' : 'opacity-0'}`}>
           <Card className="backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-white/20 dark:border-slate-700/50 shadow-2xl shadow-blue-500/10">
             <CardHeader className="space-y-3 sm:space-y-4 pb-4 sm:pb-6 px-4 sm:px-6">
               <div className="text-center space-y-2">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg shadow-blue-500/25">
-                  <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  <UserPlus className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
                 <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                  Welcome Back
+                  Create Account
                 </CardTitle>
                 <CardDescription className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-                  Sign in to access your admin dashboard
+                  Join the intern management platform
                 </CardDescription>
               </div>
             </CardHeader>
             
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-4 sm:pb-6">
-              {/* Google Sign In Button */}
+              {/* Google Sign Up Button */}
               <Button
                 type="button"
                 variant="outline"
                 className="w-full h-11 sm:h-12 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 text-slate-700 dark:text-slate-300 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-[1.02]"
                 onClick={() => {
-                  console.log('Google Sign In clicked');
+                  console.log('Google Sign Up clicked');
                 }}
               >
                 <div className="flex items-center justify-center space-x-2 sm:space-x-3">
@@ -167,12 +190,34 @@ const Login = () => {
                 <Separator className="bg-slate-200 dark:bg-slate-700" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="bg-white dark:bg-slate-900 px-2 sm:px-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                    or continue with email
+                    or create with email
                   </span>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Username
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Enter username"
+                      value={formData.username}
+                      onChange={(e) => updateFormData('username', e.target.value)}
+                      className={`pl-10 h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 ${
+                        errors.username ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
+                    />
+                  </div>
+                  {errors.username && (
+                    <p className="text-sm text-red-500 animate-in slide-in-from-top duration-200">{errors.username}</p>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Email Address
@@ -182,9 +227,9 @@ const Login = () => {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="admin@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter email address"
+                      value={formData.email}
+                      onChange={(e) => updateFormData('email', e.target.value)}
                       className={`pl-10 h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 ${
                         errors.email ? 'border-red-500 focus:border-red-500' : ''
                       }`}
@@ -204,9 +249,9 @@ const Login = () => {
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Create password"
+                      value={formData.password}
+                      onChange={(e) => updateFormData('password', e.target.value)}
                       className={`pl-10 pr-10 h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 ${
                         errors.password ? 'border-red-500 focus:border-red-500' : ''
                       }`}
@@ -224,6 +269,35 @@ const Login = () => {
                   )}
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Confirm Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => updateFormData('confirmPassword', e.target.value)}
+                      className={`pl-10 pr-10 h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 ${
+                        errors.confirmPassword ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-500 animate-in slide-in-from-top duration-200">{errors.confirmPassword}</p>
+                  )}
+                </div>
+
                 <Button
                   type="submit"
                   className="w-full h-11 sm:h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 transform hover:scale-[1.02]"
@@ -232,12 +306,12 @@ const Login = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      <span className="text-sm sm:text-base">Signing in...</span>
+                      <span className="text-sm sm:text-base">Creating Account...</span>
                     </>
                   ) : (
                     <>
-                      <Shield className="mr-2 h-4 w-4" />
-                      <span className="text-sm sm:text-base">Sign In Securely</span>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      <span className="text-sm sm:text-base">Create Account</span>
                     </>
                   )}
                 </Button>
@@ -245,13 +319,13 @@ const Login = () => {
 
               <div className="text-center">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Don't have an account?{' '}
+                  Already have an account?{' '}
                   <button
                     type="button"
-                    onClick={() => navigate('/register')}
+                    onClick={() => navigate('/login')}
                     className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline transition-colors"
                   >
-                    Create one here
+                    Sign in here
                   </button>
                 </p>
               </div>
@@ -263,4 +337,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

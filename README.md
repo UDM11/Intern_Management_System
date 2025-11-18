@@ -68,7 +68,15 @@ git clone <repository-url>
 cd "Intern Management System"
 ```
 
-### 2. Backend Setup
+### 2. Quick Start (Both Servers)
+```bash
+# Windows
+start-dev.bat
+```
+
+### 3. Manual Setup
+
+#### Backend Setup
 ```bash
 cd backend
 pip install -r requirements.txt
@@ -76,13 +84,24 @@ python run.py
 ```
 Backend runs on: http://localhost:8000
 
-### 3. Frontend Setup
+#### Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Frontend runs on: http://localhost:8080
+Frontend runs on: http://localhost:5173
+
+### 4. Create Admin User
+Before using the application, create an admin user:
+```bash
+cd backend
+python -c "from app.utils.auth import get_password_hash; from app.models.user import User; from config.database import SessionLocal; db = SessionLocal(); user = User(username='admin', email='admin@example.com', hashed_password=get_password_hash('admin123')); db.add(user); db.commit(); print('Admin user created: admin/admin123')"
+```
+
+**Default Login Credentials:**
+- Username: admin
+- Password: admin123
 
 ## 📋 API Documentation
 

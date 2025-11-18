@@ -30,12 +30,10 @@ const AddIntern = () => {
   const [currentStep, setCurrentStep] = useState(0);
   
   const [formData, setFormData] = useState({
-    fullName: '',
+    full_name: '',
     email: '',
     phone: '',
     department: '',
-    joinDate: '',
-    status: 'active' as 'active' | 'inactive',
     position: '',
     university: '',
     skills: [] as string[]
@@ -55,7 +53,7 @@ const AddIntern = () => {
 
     switch (step) {
       case 0:
-        if (!formData.fullName.trim()) newErrors.fullName = 'Name is required';
+        if (!formData.full_name.trim()) newErrors.full_name = 'Name is required';
         if (!formData.email.trim()) {
           newErrors.email = 'Email is required';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -66,7 +64,7 @@ const AddIntern = () => {
         
       case 1:
         if (!formData.department) newErrors.department = 'Department is required';
-        if (!formData.joinDate) newErrors.joinDate = 'Join date is required';
+
         break;
     }
 
@@ -97,12 +95,10 @@ const AddIntern = () => {
     setIsLoading(true);
     try {
       const internData = {
-        fullName: formData.fullName,
+        full_name: formData.full_name,
         email: formData.email,
         phone: formData.phone,
         department: formData.department,
-        joinDate: formData.joinDate,
-        status: formData.status,
       };
       
       await internService.createIntern(internData);
@@ -155,7 +151,7 @@ const AddIntern = () => {
       <div className="flex items-center gap-6">
         <Avatar className="h-20 w-20 hover-scale transition-smooth">
           <AvatarFallback className="text-lg font-semibold">
-            {formData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() || 'IN'}
+            {formData.full_name.split(' ').map(n => n[0]).join('').toUpperCase() || 'IN'}
           </AvatarFallback>
         </Avatar>
         <div>
@@ -166,21 +162,21 @@ const AddIntern = () => {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="fullName" className="flex items-center gap-2">
+          <Label htmlFor="full_name" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Full Name *
           </Label>
           <Input
-            id="fullName"
-            value={formData.fullName}
-            onChange={(e) => updateFormData('fullName', e.target.value)}
-            className={`transition-smooth ${errors.fullName ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
+            id="full_name"
+            value={formData.full_name}
+            onChange={(e) => updateFormData('full_name', e.target.value)}
+            className={`transition-smooth ${errors.full_name ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
             placeholder="Enter full name"
           />
-          {errors.fullName && (
+          {errors.full_name && (
             <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-3 w-3" />
-              {errors.fullName}
+              {errors.full_name}
             </p>
           )}
         </div>
@@ -282,44 +278,7 @@ const AddIntern = () => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="joinDate" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Start Date *
-          </Label>
-          <Input
-            id="joinDate"
-            type="date"
-            value={formData.joinDate}
-            onChange={(e) => updateFormData('joinDate', e.target.value)}
-            className={`transition-smooth ${errors.joinDate ? 'border-destructive' : 'focus:ring-2 focus:ring-primary/20'}`}
-          />
-          {errors.joinDate && (
-            <p className="text-sm text-destructive flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" />
-              {errors.joinDate}
-            </p>
-          )}
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="status" className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4" />
-            Status
-          </Label>
-          <Select
-            value={formData.status}
-            onValueChange={(value: 'active' | 'inactive') => updateFormData('status', value)}
-          >
-            <SelectTrigger className="transition-smooth focus:ring-2 focus:ring-primary/20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       <div className="space-y-4">
@@ -369,7 +328,7 @@ const AddIntern = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div><strong>Name:</strong> {formData.fullName || 'Not provided'}</div>
+            <div><strong>Name:</strong> {formData.full_name || 'Not provided'}</div>
             <div><strong>Email:</strong> {formData.email || 'Not provided'}</div>
             <div><strong>Phone:</strong> {formData.phone || 'Not provided'}</div>
             <div><strong>University:</strong> {formData.university || 'Not provided'}</div>
@@ -386,12 +345,6 @@ const AddIntern = () => {
           <CardContent className="space-y-2">
             <div><strong>Department:</strong> {formData.department || 'Not provided'}</div>
             <div><strong>Position:</strong> {formData.position || 'Not provided'}</div>
-            <div><strong>Start Date:</strong> {formData.joinDate || 'Not provided'}</div>
-            <div><strong>Status:</strong> 
-              <Badge className={`ml-2 ${formData.status === 'active' ? 'bg-success' : 'bg-muted'}`}>
-                {formData.status}
-              </Badge>
-            </div>
             <div><strong>Skills:</strong> {formData.skills.length > 0 ? formData.skills.join(', ') : 'None added'}</div>
           </CardContent>
         </Card>

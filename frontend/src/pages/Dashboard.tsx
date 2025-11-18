@@ -13,10 +13,11 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 
 interface DashboardStats {
-  totalInterns: number;
-  activeInterns: number;
-  pendingTasks: number;
-  completedTasks: number;
+  total_interns: number;
+  active_interns: number;
+  pending_tasks: number;
+  completed_tasks: number;
+  overdue_tasks: number;
 }
 
 interface RecentActivity {
@@ -37,10 +38,11 @@ interface TopPerformer {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
-    totalInterns: 0,
-    activeInterns: 0,
-    pendingTasks: 0,
-    completedTasks: 0,
+    total_interns: 0,
+    active_interns: 0,
+    pending_tasks: 0,
+    completed_tasks: 0,
+    overdue_tasks: 0,
   });
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
   const [topPerformers, setTopPerformers] = useState<TopPerformer[]>([]);
@@ -137,7 +139,7 @@ const Dashboard = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalInterns}</div>
+            <div className="text-2xl font-bold">{stats.total_interns}</div>
             <p className="text-xs text-muted-foreground">All registered interns</p>
           </CardContent>
         </Card>
@@ -148,7 +150,7 @@ const Dashboard = () => {
             <UserCheck className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.activeInterns}</div>
+            <div className="text-2xl font-bold text-success">{stats.active_interns}</div>
             <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
@@ -159,7 +161,7 @@ const Dashboard = () => {
             <Clock className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">{stats.pendingTasks}</div>
+            <div className="text-2xl font-bold text-warning">{stats.pending_tasks}</div>
             <p className="text-xs text-muted-foreground">Tasks in progress</p>
           </CardContent>
         </Card>
@@ -170,7 +172,7 @@ const Dashboard = () => {
             <CheckCircle2 className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.completedTasks}</div>
+            <div className="text-2xl font-bold text-success">{stats.completed_tasks}</div>
             <p className="text-xs text-muted-foreground">Tasks finished</p>
           </CardContent>
         </Card>

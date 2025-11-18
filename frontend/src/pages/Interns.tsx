@@ -75,7 +75,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 
 type ViewMode = 'table' | 'grid';
-type SortField = 'fullName' | 'email' | 'department' | 'joinDate' | 'status';
+type SortField = 'full_name' | 'email' | 'department' | 'join_date' | 'status';
 type SortOrder = 'asc' | 'desc';
 
 const Interns = () => {
@@ -86,9 +86,9 @@ const Interns = () => {
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [sortField, setSortField] = useState<SortField>('fullName');
+  const [sortField, setSortField] = useState<SortField>('full_name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [isRefreshing, setIsRefreshing] = useState(false);
   
@@ -162,7 +162,7 @@ const Interns = () => {
       let aValue = a[sortField];
       let bValue = b[sortField];
       
-      if (sortField === 'joinDate') {
+      if (sortField === 'join_date') {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
       }
@@ -220,11 +220,11 @@ const Interns = () => {
     const csvContent = [
       ['Name', 'Email', 'Phone', 'Department', 'Join Date', 'Status'],
       ...interns.map(intern => [
-        intern.fullName,
+        intern.full_name,
         intern.email,
         intern.phone,
         intern.department,
-        intern.joinDate,
+        intern.join_date,
         intern.status
       ])
     ].map(row => row.join(',')).join('\n');
@@ -426,11 +426,11 @@ const Interns = () => {
                 <TableRow>
                   <TableHead 
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort('fullName')}
+                    onClick={() => handleSort('full_name')}
                   >
                     <div className="flex items-center gap-2">
                       Name
-                      {sortField === 'fullName' && (
+                      {sortField === 'full_name' && (
                         sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />
                       )}
                     </div>
@@ -459,11 +459,11 @@ const Interns = () => {
                   </TableHead>
                   <TableHead 
                     className="cursor-pointer hover:bg-muted/50 transition-colors hidden lg:table-cell"
-                    onClick={() => handleSort('joinDate')}
+                    onClick={() => handleSort('join_date')}
                   >
                     <div className="flex items-center gap-2">
                       Join Date
-                      {sortField === 'joinDate' && (
+                      {sortField === 'join_date' && (
                         sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />
                       )}
                     </div>
@@ -504,11 +504,11 @@ const Interns = () => {
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
                             <AvatarFallback className="text-xs font-medium">
-                              {getInitials(intern.fullName)}
+                              {getInitials(intern.full_name)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{intern.fullName}</div>
+                            <div className="font-medium">{intern.full_name}</div>
                             <div className="text-sm text-muted-foreground sm:hidden">
                               {intern.email}
                             </div>
@@ -522,7 +522,7 @@ const Interns = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {new Date(intern.joinDate).toLocaleDateString()}
+                        {new Date(intern.join_date).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -611,7 +611,7 @@ const Interns = () => {
                           <div className="relative">
                             <Avatar className="h-14 w-14 ring-2 ring-background shadow-lg hover-scale">
                               <AvatarFallback className="font-semibold text-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-                                {getInitials(intern.fullName)}
+                                {getInitials(intern.full_name)}
                               </AvatarFallback>
                             </Avatar>
                             <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-success rounded-full border-2 border-background flex items-center justify-center">
@@ -621,7 +621,7 @@ const Interns = () => {
                           
                           <div className="space-y-1">
                             <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
-                              {intern.fullName}
+                              {intern.full_name}
                             </CardTitle>
                             <p className="text-sm font-medium text-muted-foreground">{mockData.position}</p>
                             <div className="flex items-center gap-2">
@@ -769,7 +769,7 @@ const Interns = () => {
                         
                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          <span>Joined {new Date(intern.joinDate).toLocaleDateString()}</span>
+                          <span>Joined {new Date(intern.join_date).toLocaleDateString()}</span>
                         </div>
                       </div>
                     </CardContent>

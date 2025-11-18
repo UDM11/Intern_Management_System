@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.database import engine, Base
-from app.routes import auth, interns, tasks, dashboard
+from .routes import auth, interns, tasks, dashboard
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
