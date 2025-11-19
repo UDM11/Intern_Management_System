@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   User,
   Bell,
@@ -88,22 +88,22 @@ interface SettingsData {
 export const Settings = () => {
   const [settings, setSettings] = useState<SettingsData>({
     profile: {
-      name: 'John Doe',
-      email: 'john.doe@company.com',
+      name: '',
+      email: '',
       avatar: '',
-      role: 'Admin',
-      department: 'Engineering',
-      phone: '+1 (555) 123-4567'
+      role: '',
+      department: '',
+      phone: ''
     },
     preferences: {
       theme: 'system',
       language: 'en'
     },
     notifications: {
-      email: true,
-      push: true,
-      desktop: true,
-      sound: true
+      email: false,
+      push: false,
+      desktop: false,
+      sound: false
     },
     security: {
       twoFactorAuth: false,
@@ -111,23 +111,46 @@ export const Settings = () => {
     },
     privacy: {
       profileVisibility: 'team',
-      activityTracking: true
+      activityTracking: false
     },
     system: {
-      autoBackup: true,
-      storageUsed: 2.4,
-      storageLimit: 10
+      autoBackup: false,
+      storageUsed: 0,
+      storageLimit: 0
     }
   });
 
   const [isSaving, setIsSaving] = useState(false);
   const [resetDialog, setResetDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      setIsLoading(true);
+      // TODO: Replace with actual API call to load user settings
+      // const userSettings = await settingsService.getSettings();
+      // setSettings(userSettings);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load settings.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // TODO: Replace with actual API call to save settings
+      // await settingsService.updateSettings(settings);
       toast({
         title: 'Settings saved',
         description: 'Your settings have been updated successfully.',
@@ -145,7 +168,8 @@ export const Settings = () => {
 
   const handleReset = async () => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // TODO: Replace with actual API call to reset settings
+      // await settingsService.resetSettings();
       toast({
         title: 'Settings reset',
         description: 'All settings have been reset to default values.',

@@ -57,17 +57,10 @@ const Dashboard = () => {
       setIsLoading(true);
       const statsData = await internService.getDashboardStats();
       setStats(statsData);
-      setRecentActivities([
-        { id: '1', message: 'Sarah Johnson joined Engineering team', timestamp: '2 hours ago', type: 'success' },
-        { id: '2', message: 'Mike Chen completed API Documentation', timestamp: '4 hours ago', type: 'success' },
-        { id: '3', message: 'Project deadline approaching for Emma Davis', timestamp: '6 hours ago', type: 'warning' },
-        { id: '4', message: 'New task assigned to Alex Rodriguez', timestamp: '8 hours ago', type: 'info' },
-      ]);
-      setTopPerformers([
-        { id: '1', name: 'Alice Cooper', department: 'Engineering', completedTasks: 24, completionRate: 95 },
-        { id: '2', name: 'Bob Wilson', department: 'Design', completedTasks: 18, completionRate: 88 },
-        { id: '3', name: 'Carol Brown', department: 'Marketing', completedTasks: 15, completionRate: 82 },
-      ]);
+      // TODO: Load real recent activities from API
+      setRecentActivities([]);
+      // TODO: Load real top performers from API
+      setTopPerformers([]);
     } catch (error) {
       toast({
         title: 'Error',

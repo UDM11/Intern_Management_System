@@ -577,23 +577,17 @@ const Interns = () => {
               </Card>
             ) : (
               filteredInterns.map((intern, index) => {
-                // Mock data for enhanced details
-                const mockData = {
-                  university: ['MIT', 'Stanford', 'Harvard', 'Berkeley', 'CMU'][index % 5],
-                  position: ['Software Engineer Intern', 'Marketing Intern', 'Design Intern', 'Sales Intern'][index % 4],
-                  completionRate: Math.floor(Math.random() * 40) + 60, // 60-100%
-                  totalTasks: Math.floor(Math.random() * 20) + 5, // 5-25 tasks
-                  completedTasks: 0,
-                  skills: [
-                    ['React', 'TypeScript', 'Node.js'],
-                    ['Digital Marketing', 'SEO', 'Analytics'],
-                    ['Figma', 'Adobe XD', 'Photoshop'],
-                    ['Salesforce', 'CRM', 'Lead Generation']
-                  ][index % 4],
-                  rating: (Math.random() * 2 + 3).toFixed(1), // 3.0-5.0
-                  daysActive: Math.floor(Math.random() * 90) + 30 // 30-120 days
+                // Use actual intern data from backend
+                const internData = {
+                  university: intern.university || 'Not specified',
+                  position: intern.position || 'Intern',
+                  completionRate: intern.task_stats?.completion_rate || 0,
+                  totalTasks: intern.task_stats?.total_tasks || 0,
+                  completedTasks: intern.task_stats?.completed_tasks || 0,
+                  skills: intern.skills || [],
+                  rating: '0.0', // TODO: Calculate from performance metrics
+                  daysActive: Math.floor((new Date().getTime() - new Date(intern.join_date).getTime()) / (1000 * 60 * 60 * 24))
                 };
-                mockData.completedTasks = Math.floor((mockData.completionRate / 100) * mockData.totalTasks);
                 
                 return (
                   <Card 
@@ -623,7 +617,7 @@ const Interns = () => {
                             <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
                               {intern.full_name}
                             </CardTitle>
-                            <p className="text-sm font-medium text-muted-foreground">{mockData.position}</p>
+                            <p className="text-sm font-medium text-muted-foreground">{internData.position}</p>
                             <div className="flex items-center gap-2">
                               <Badge 
                                 variant="outline" 
@@ -633,7 +627,7 @@ const Interns = () => {
                               </Badge>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                <span className="font-medium">{mockData.rating}</span>
+                                <span className="font-medium">{internData.rating}</span>
                               </div>
                             </div>
                           </div>
@@ -689,7 +683,7 @@ const Interns = () => {
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{mockData.university}</span>
+                          <span className="font-medium">{internData.university}</span>
                         </div>
                       </div>
                       
@@ -702,22 +696,22 @@ const Interns = () => {
                             <Target className="h-4 w-4 text-primary" />
                             <span className="text-sm font-medium">Task Completion</span>
                           </div>
-                          <span className="text-sm font-bold">{mockData.completionRate}%</span>
+                          <span className="text-sm font-bold">{internData.completionRate}%</span>
                         </div>
-                        <Progress value={mockData.completionRate} className="h-2" />
+                        <Progress value={internData.completionRate} className="h-2" />
                         
                         <div className="grid grid-cols-2 gap-4 text-center">
                           <div className="space-y-1">
                             <div className="flex items-center justify-center gap-1">
                               <CheckCircle2 className="h-4 w-4 text-success" />
-                              <span className="text-lg font-bold text-success">{mockData.completedTasks}</span>
+                              <span className="text-lg font-bold text-success">{internData.completedTasks}</span>
                             </div>
                             <p className="text-xs text-muted-foreground">Completed</p>
                           </div>
                           <div className="space-y-1">
                             <div className="flex items-center justify-center gap-1">
                               <Clock className="h-4 w-4 text-warning" />
-                              <span className="text-lg font-bold text-warning">{mockData.totalTasks - mockData.completedTasks}</span>
+                              <span className="text-lg font-bold text-warning">{internData.totalTasks - internData.completedTasks}</span>
                             </div>
                             <p className="text-xs text-muted-foreground">Pending</p>
                           </div>
@@ -733,7 +727,7 @@ const Interns = () => {
                           <span className="text-sm font-medium">Skills</span>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {mockData.skills.slice(0, 3).map((skill, skillIndex) => (
+                          {internData.skills.slice(0, 3).map((skill, skillIndex) => (
                             <Badge 
                               key={skillIndex} 
                               variant="secondary" 
@@ -742,9 +736,9 @@ const Interns = () => {
                               {skill}
                             </Badge>
                           ))}
-                          {mockData.skills.length > 3 && (
+                          {internData.skills.length > 3 && (
                             <Badge variant="outline" className="text-xs px-2 py-1">
-                              +{mockData.skills.length - 3}
+                              +{internData.skills.length - 3}
                             </Badge>
                           )}
                         </div>
@@ -763,7 +757,7 @@ const Interns = () => {
                           </Badge>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Activity className="h-3 w-3" />
-                            <span>{mockData.daysActive} days active</span>
+                            <span>{internData.daysActive} days active</span>
                           </div>
                         </div>
                         

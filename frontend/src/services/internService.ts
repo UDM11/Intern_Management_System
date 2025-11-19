@@ -1,13 +1,25 @@
 import api from './api';
 
+export interface TaskStats {
+  total_tasks: number;
+  completed_tasks: number;
+  pending_tasks: number;
+  overdue_tasks: number;
+  completion_rate: number;
+}
+
 export interface Intern {
   id: number;
   full_name: string;
   email: string;
   phone: string;
   department: string;
+  position?: string;
+  university?: string;
+  skills?: string[];
   join_date: string;
   status: 'active' | 'inactive';
+  task_stats?: TaskStats;
 }
 
 export interface Task {
@@ -82,6 +94,11 @@ export const internService = {
 
   getDepartmentStats: async () => {
     const response = await api.get('/dashboard/departments');
+    return response.data;
+  },
+
+  getAnalyticsData: async (timeRange: string) => {
+    const response = await api.get(`/analytics?timeRange=${timeRange}`);
     return response.data;
   },
 };

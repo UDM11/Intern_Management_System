@@ -43,13 +43,11 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
   useEffect(() => {
     loadNotifications();
     
-    const interval = setInterval(() => {
-      if (Math.random() > 0.8) {
-        addNewNotification();
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
+    // TODO: Set up real-time notification updates
+    // const interval = setInterval(() => {
+    //   // Check for new notifications from server
+    // }, 10000);
+    // return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -57,64 +55,21 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
     setUnreadCount(count);
   }, [notifications]);
 
-  const loadNotifications = () => {
-    const mockNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'info',
-        title: 'New Intern Registered',
-        message: 'Sarah Johnson has joined the Engineering team',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-        read: false,
-        priority: 'medium',
-        actionUrl: '/interns/sarah-johnson'
-      },
-      {
-        id: '2',
-        type: 'warning',
-        title: 'Deadline Approaching',
-        message: 'Project submission due in 2 days for Mike Chen',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-        read: false,
-        priority: 'high',
-        actionUrl: '/interns/mike-chen'
-      },
-      {
-        id: '3',
-        type: 'success',
-        title: 'Task Completed',
-        message: 'Emma Davis completed "API Documentation" task',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-        read: true,
-        priority: 'low'
-      },
-      {
-        id: '4',
-        type: 'error',
-        title: 'Task Overdue',
-        message: 'Database migration task is overdue for Alex Rodriguez',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-        read: false,
-        priority: 'high',
-        actionUrl: '/interns/alex-rodriguez'
-      }
-    ];
-    
-    setNotifications(mockNotifications);
+  const loadNotifications = async () => {
+    try {
+      // TODO: Replace with actual API call to get notifications
+      // const notificationsData = await notificationService.getNotifications();
+      // setNotifications(notificationsData);
+      setNotifications([]);
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
+      setNotifications([]);
+    }
   };
 
   const addNewNotification = () => {
-    const newNotification: Notification = {
-      id: Date.now().toString(),
-      type: ['info', 'success', 'warning'][Math.floor(Math.random() * 3)] as Notification['type'],
-      title: 'System Update',
-      message: 'A new system event has occurred',
-      timestamp: new Date().toISOString(),
-      read: false,
-      priority: 'medium'
-    };
-    
-    setNotifications(prev => [newNotification, ...prev]);
+    // TODO: This should be handled by real-time updates from the server
+    // For now, this function is disabled
   };
 
   const markAsRead = (id: string) => {

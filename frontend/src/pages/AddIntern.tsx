@@ -99,6 +99,9 @@ const AddIntern = () => {
         email: formData.email,
         phone: formData.phone,
         department: formData.department,
+        position: formData.position,
+        university: formData.university,
+        skills: formData.skills
       };
       
       await internService.createIntern(internData);

@@ -64,12 +64,19 @@ const EditIntern = () => {
 
     try {
       setIsFetching(true);
-      const intern = await internService.getInternById(id);
+      const intern = await internService.getInternById(parseInt(id));
+      
+      // Map backend field names to frontend form data
       setFormData({
-        ...intern,
+        fullName: intern.full_name || '',
+        email: intern.email || '',
+        phone: intern.phone || '',
+        department: intern.department || '',
         position: intern.position || '',
         university: intern.university || '',
-        skills: intern.skills || []
+        skills: intern.skills || [],
+        joinDate: intern.join_date ? intern.join_date.split('T')[0] : '',
+        status: intern.status || 'active'
       });
     } catch (error) {
       toast({
@@ -130,15 +137,18 @@ const EditIntern = () => {
     setIsLoading(true);
     try {
       const internData = {
-        fullName: formData.fullName,
+        full_name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
         department: formData.department,
-        joinDate: formData.joinDate,
+        position: formData.position,
+        university: formData.university,
+        skills: formData.skills,
+        join_date: formData.joinDate,
         status: formData.status,
       };
       
-      await internService.updateIntern(id, internData);
+      await internService.updateIntern(parseInt(id), internData);
       
       toast({
         title: 'Success!',
@@ -188,7 +198,7 @@ const EditIntern = () => {
       <div className="flex items-center gap-6">
         <Avatar className="h-20 w-20 hover-scale transition-smooth">
           <AvatarFallback className="text-lg font-semibold">
-            {formData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() || 'IN'}
+            {formData.fullName ? formData.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'IN'}
           </AvatarFallback>
         </Avatar>
         <div>

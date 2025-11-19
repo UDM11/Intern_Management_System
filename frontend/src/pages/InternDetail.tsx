@@ -206,7 +206,7 @@ const InternDetail = () => {
     return colors[dept as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
   };
 
-  const completionRate = tasks.length > 0 ? (tasks.filter(t => t.status === 'completed').length / tasks.length) * 100 : 0;
+  const completionRate = intern?.task_stats?.completion_rate || 0;
 
   if (isLoading) {
     return (
@@ -254,7 +254,7 @@ const InternDetail = () => {
               <Avatar className="h-16 w-16 hover-scale transition-smooth">
                 <AvatarImage src="" />
                 <AvatarFallback className="text-xl font-bold">
-                  {intern.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  {intern.full_name ? intern.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'IN'}
                 </AvatarFallback>
               </Avatar>
               <div>
@@ -299,7 +299,14 @@ const InternDetail = () => {
                       <Phone className="h-4 w-4" />
                       Phone
                     </div>
-                    <p className="font-medium">{intern.phone}</p>
+                    <p className="font-medium">{intern.phone || 'Not provided'}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      Email
+                    </div>
+                    <p className="font-medium">{intern.email}</p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -309,6 +316,20 @@ const InternDetail = () => {
                     <Badge variant="outline" className={getDepartmentColor(intern.department)}>
                       {intern.department}
                     </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      Position
+                    </div>
+                    <p className="font-medium">{intern.position || 'Not specified'}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Award className="h-4 w-4" />
+                      University
+                    </div>
+                    <p className="font-medium">{intern.university || 'Not provided'}</p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -344,9 +365,28 @@ const InternDetail = () => {
                       <Award className="h-4 w-4" />
                       Total Tasks
                     </div>
-                    <p className="font-medium text-2xl">{tasks.length}</p>
+                    <p className="font-medium text-2xl">{intern?.task_stats?.total_tasks || 0}</p>
                   </div>
                 </div>
+                
+                {/* Skills Section */}
+                {intern.skills && intern.skills.length > 0 && (
+                  <div className="mt-6 pt-6 border-t">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Star className="h-4 w-4" />
+                        Skills & Technologies
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {intern.skills.map((skill, index) => (
+                          <Badge key={index} variant="secondary" className="hover-scale transition-smooth">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -474,7 +514,7 @@ const InternDetail = () => {
                     <span className="text-sm font-medium">Completed</span>
                   </div>
                   <span className="font-bold text-success">
-                    {tasks.filter((t) => t.status === 'completed').length}
+                    {intern?.task_stats?.completed_tasks || 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
@@ -483,7 +523,7 @@ const InternDetail = () => {
                     <span className="text-sm font-medium">Pending</span>
                   </div>
                   <span className="font-bold text-warning">
-                    {tasks.filter((t) => t.status === 'pending').length}
+                    {intern?.task_stats?.pending_tasks || 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
@@ -492,7 +532,7 @@ const InternDetail = () => {
                     <span className="text-sm font-medium">Overdue</span>
                   </div>
                   <span className="font-bold text-destructive">
-                    {tasks.filter((t) => t.status === 'overdue').length}
+                    {intern?.task_stats?.overdue_tasks || 0}
                   </span>
                 </div>
                 <div className="pt-4 border-t">

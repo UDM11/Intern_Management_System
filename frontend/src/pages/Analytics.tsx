@@ -89,54 +89,9 @@ export const Analytics = () => {
         setIsLoading(true);
       }
 
-      // Simulate API call with mock data
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockData: AnalyticsData = {
-        totalInterns: 156,
-        activeInterns: 142,
-        inactiveInterns: 14,
-        completedTasks: 1247,
-        pendingTasks: 89,
-        overdueTasks: 23,
-        departmentStats: [
-          { name: 'Engineering', value: 65, color: '#3b82f6' },
-          { name: 'Marketing', value: 35, color: '#10b981' },
-          { name: 'Design', value: 28, color: '#f59e0b' },
-          { name: 'Sales', value: 28, color: '#ef4444' }
-        ],
-        monthlyGrowth: [
-          { month: 'Jan', interns: 45, tasks: 234 },
-          { month: 'Feb', interns: 52, tasks: 287 },
-          { month: 'Mar', interns: 61, tasks: 342 },
-          { month: 'Apr', interns: 78, tasks: 398 },
-          { month: 'May', interns: 89, tasks: 456 },
-          { month: 'Jun', interns: 95, tasks: 523 },
-          { month: 'Jul', interns: 108, tasks: 589 },
-          { month: 'Aug', interns: 125, tasks: 678 },
-          { month: 'Sep', interns: 138, tasks: 745 },
-          { month: 'Oct', interns: 142, tasks: 823 },
-          { month: 'Nov', interns: 148, tasks: 891 },
-          { month: 'Dec', interns: 156, tasks: 967 }
-        ],
-        performanceMetrics: [
-          { department: 'Engineering', completion: 94, efficiency: 87 },
-          { department: 'Marketing', completion: 89, efficiency: 92 },
-          { department: 'Design', completion: 91, efficiency: 85 },
-          { department: 'Sales', completion: 86, efficiency: 88 }
-        ],
-        recentActivity: [
-          { date: '2024-01-01', active: 120, joined: 5, completed: 45 },
-          { date: '2024-01-02', active: 125, joined: 8, completed: 52 },
-          { date: '2024-01-03', active: 128, joined: 3, completed: 48 },
-          { date: '2024-01-04', active: 132, joined: 6, completed: 55 },
-          { date: '2024-01-05', active: 135, joined: 4, completed: 49 },
-          { date: '2024-01-06', active: 138, joined: 7, completed: 58 },
-          { date: '2024-01-07', active: 142, joined: 5, completed: 62 }
-        ]
-      };
-      
-      setData(mockData);
+      // TODO: Replace with actual API call to get analytics data
+      const analyticsData = await internService.getAnalyticsData(timeRange);
+      setData(analyticsData);
     } catch (error) {
       console.error('Error loading analytics:', error);
       toast({

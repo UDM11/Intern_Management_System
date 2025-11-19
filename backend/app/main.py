@@ -4,7 +4,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.database import engine, Base
-from .routes import auth, interns, tasks, dashboard
+from .routes import auth, interns, tasks, dashboard, users
+# Import all models to ensure they are registered with SQLAlchemy
+from .models import User, Intern, Task
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -29,6 +31,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(interns.router, prefix="/api")
 app.include_router(tasks.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
 
 @app.get("/")
 def root():

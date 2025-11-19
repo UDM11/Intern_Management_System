@@ -12,14 +12,14 @@ class TaskStatus(enum.Enum):
 class Task(Base):
     __tablename__ = "tasks"
     
-    id = Column(Integer, primary_key=True, index=True)
-    intern_id = Column(Integer, ForeignKey("interns.id"), nullable=False)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    intern_id = Column(Integer, ForeignKey("interns.id", ondelete="CASCADE"), nullable=False, index=True)
     title = Column(String(200), nullable=False)
-    description = Column(Text)
+    description = Column(Text, nullable=True)
     deadline = Column(DateTime, nullable=False)
-    status = Column(Enum(TaskStatus), default=TaskStatus.PENDING)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relationships
     intern = relationship("Intern", back_populates="tasks")

@@ -64,12 +64,29 @@ const Register = () => {
     
     setIsLoading(true);
     try {
-      await authService.register(formData.username, formData.email, formData.password);
-      toast({
-        title: 'Success!',
-        description: 'Account created successfully. Please login.',
-      });
-      navigate('/login');
+      // Register and auto-login
+      const result = await authService.register(formData.username, formData.email, formData.password);
+      
+      // Store auth data if returned
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('user', JSON.stringify(result.user));
+        
+        toast({
+          title: 'Welcome!',
+          description: 'Account created successfully. Redirecting to dashboard...',
+        });
+        
+        // Redirect to dashboard
+        navigate('/dashboard');
+      } else {
+        // Fallback to login page if no token returned
+        toast({
+          title: 'Success!',
+          description: 'Account created successfully. Please login.',
+        });
+        navigate('/login');
+      }
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
