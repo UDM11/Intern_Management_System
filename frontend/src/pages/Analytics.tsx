@@ -89,7 +89,6 @@ export const Analytics = () => {
         setIsLoading(true);
       }
 
-      // TODO: Replace with actual API call to get analytics data
       const analyticsData = await internService.getAnalyticsData(timeRange);
       setData(analyticsData);
     } catch (error) {
