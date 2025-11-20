@@ -97,6 +97,16 @@ export const internService = {
     return response.data;
   },
 
+  getRecentActivities: async () => {
+    const response = await api.get('/dashboard/recent-activities');
+    return response.data;
+  },
+
+  getTopPerformers: async () => {
+    const response = await api.get('/dashboard/top-performers');
+    return response.data;
+  },
+
   getAnalyticsData: async (timeRange: string) => {
     const response = await api.get(`/analytics?timeRange=${timeRange}`);
     return response.data;

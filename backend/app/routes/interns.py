@@ -161,7 +161,7 @@ def get_intern(
     
     return InternResponse.from_orm(intern, task_stats)
 
-@router.post("/", response_model=InternResponse)
+@router.post("", response_model=InternResponse)
 def create_intern(
     intern: InternCreate,
     db: Session = Depends(get_db),

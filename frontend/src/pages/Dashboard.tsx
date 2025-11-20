@@ -13,8 +13,10 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
 
 interface DashboardStats {
+  total_users: number;
   total_interns: number;
   active_interns: number;
+  total_tasks: number;
   pending_tasks: number;
   completed_tasks: number;
   overdue_tasks: number;
@@ -28,18 +30,21 @@ interface RecentActivity {
 }
 
 interface TopPerformer {
-  id: string;
+  id: number;
   name: string;
   department: string;
   completedTasks: number;
   completionRate: number;
+  avgCompletionTime: number;
 }
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
+    total_users: 0,
     total_interns: 0,
     active_interns: 0,
+    total_tasks: 0,
     pending_tasks: 0,
     completed_tasks: 0,
     overdue_tasks: 0,
@@ -55,12 +60,14 @@ const Dashboard = () => {
   const loadDashboardData = async () => {
     try {
       setIsLoading(true);
-      const statsData = await internService.getDashboardStats();
+      const [statsData, activitiesData, performersData] = await Promise.all([
+        internService.getDashboardStats(),
+        internService.getRecentActivities(),
+        internService.getTopPerformers()
+      ]);
       setStats(statsData);
-      // TODO: Load real recent activities from API
-      setRecentActivities([]);
-      // TODO: Load real top performers from API
-      setTopPerformers([]);
+      setRecentActivities(activitiesData);
+      setTopPerformers(performersData);
     } catch (error) {
       toast({
         title: 'Error',
@@ -125,7 +132,18 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-slide-up">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 animate-slide-up">
+        <Card className="hover-lift transition-smooth">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total_users}</div>
+            <p className="text-xs text-muted-foreground">System users</p>
+          </CardContent>
+        </Card>
+        
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Interns</CardTitle>
@@ -133,7 +151,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total_interns}</div>
-            <p className="text-xs text-muted-foreground">All registered interns</p>
+            <p className="text-xs text-muted-foreground">All interns</p>
           </CardContent>
         </Card>
         
@@ -150,18 +168,18 @@ const Dashboard = () => {
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
-            <Clock className="h-4 w-4 text-warning" />
+            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+            <Clock className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">{stats.pending_tasks}</div>
-            <p className="text-xs text-muted-foreground">Tasks in progress</p>
+            <div className="text-2xl font-bold text-primary">{stats.total_tasks}</div>
+            <p className="text-xs text-muted-foreground">All tasks</p>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Tasks</CardTitle>
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
@@ -183,7 +201,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
+              {recentActivities.length > 0 ? recentActivities.map((activity, index) => (
                 <div 
                   key={activity.id} 
                   className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors animate-fade-in"
@@ -197,7 +215,12 @@ const Dashboard = () => {
                     <p className="text-xs text-muted-foreground">{activity.timestamp}</p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No recent activities</p>
+                </div>
+              )}
             </div>
             <div className="mt-4 pt-4 border-t">
               <Button variant="ghost" className="w-full hover-lift" onClick={() => navigate('/interns')}>
@@ -218,7 +241,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topPerformers.map((performer, index) => (
+              {topPerformers.length > 0 ? topPerformers.map((performer, index) => (
                 <div 
                   key={performer.id} 
                   className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer animate-fade-in"
@@ -235,14 +258,23 @@ const Dashboard = () => {
                     <Badge variant="outline" className={`text-xs ${getDepartmentColor(performer.department)}`}>
                       {performer.department}
                     </Badge>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Avg: {performer.avgCompletionTime} days
+                    </p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold">{performer.completedTasks}</p>
                     <p className="text-xs text-muted-foreground">tasks</p>
                     <Progress value={performer.completionRate} className="w-12 h-1 mt-1" />
+                    <p className="text-xs text-success font-medium">{performer.completionRate}%</p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No top performers yet</p>
+                </div>
+              )}
             </div>
             <div className="mt-4 pt-4 border-t">
               <Button variant="ghost" className="w-full hover-lift" onClick={() => navigate('/interns')}>
