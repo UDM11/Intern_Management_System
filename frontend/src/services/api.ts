@@ -21,7 +21,9 @@ class ApiClient {
     };
 
     try {
+      console.log('API Request:', { url, method: config.method || 'GET', headers: config.headers });
       const response = await fetch(url, config);
+      console.log('API Response:', { status: response.status, statusText: response.statusText });
       
       if (response.status === 401) {
         localStorage.removeItem('token');
@@ -32,11 +34,16 @@ class ApiClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('API Error:', errorData);
         throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
+      console.error('API Request failed:', error);
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Failed to connect to server. Please check if the backend is running.');
+      }
       throw error;
     }
   }

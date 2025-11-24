@@ -16,7 +16,7 @@ def view_all_tables():
         
         # Users Table
         users = db.query(User).all()
-        print(f"\n📊 USERS TABLE ({len(users)} records)")
+        print(f"\nUSERS TABLE ({len(users)} records)")
         print("-" * 50)
         if users:
             user_data = []
@@ -33,7 +33,7 @@ def view_all_tables():
         
         # Interns Table
         interns = db.query(Intern).all()
-        print(f"\n👥 INTERNS TABLE ({len(interns)} records)")
+        print(f"\nINTERNS TABLE ({len(interns)} records)")
         print("-" * 50)
         if interns:
             intern_data = []
@@ -52,7 +52,7 @@ def view_all_tables():
         
         # Tasks Table
         tasks = db.query(Task).all()
-        print(f"\n📋 TASKS TABLE ({len(tasks)} records)")
+        print(f"\nTASKS TABLE ({len(tasks)} records)")
         print("-" * 50)
         if tasks:
             task_data = []
@@ -69,7 +69,7 @@ def view_all_tables():
             print("No tasks found")
         
         # Summary Statistics
-        print(f"\n📈 SUMMARY STATISTICS")
+        print(f"\nSUMMARY STATISTICS")
         print("-" * 50)
         stats = [
             ["Total Users", len(users)],

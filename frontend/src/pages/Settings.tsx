@@ -50,15 +50,11 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
+import { settingsService, UserProfile, UserProfileUpdate } from '@/services/settingsService';
 
 interface SettingsData {
-  profile: {
-    name: string;
-    email: string;
-    avatar: string;
+  profile: UserProfile & {
     role: string;
-    department: string;
-    phone: string;
   };
   preferences: {
     theme: 'light' | 'dark' | 'system';
@@ -88,12 +84,15 @@ interface SettingsData {
 export const Settings = () => {
   const [settings, setSettings] = useState<SettingsData>({
     profile: {
-      name: '',
+      id: 0,
+      username: '',
       email: '',
-      avatar: '',
-      role: '',
+      full_name: '',
+      avatar_url: '',
+      role: 'Admin',
       department: '',
-      phone: ''
+      phone: '',
+      is_active: true
     },
     preferences: {
       theme: 'system',
@@ -132,9 +131,14 @@ export const Settings = () => {
   const loadSettings = async () => {
     try {
       setIsLoading(true);
-      // TODO: Replace with actual API call to load user settings
-      // const userSettings = await settingsService.getSettings();
-      // setSettings(userSettings);
+      const userProfile = await settingsService.getUserProfile();
+      setSettings(prev => ({
+        ...prev,
+        profile: {
+          ...userProfile,
+          role: 'Admin' // Default role, can be fetched from API if needed
+        }
+      }));
     } catch (error) {
       toast({
         title: 'Error',
@@ -149,16 +153,31 @@ export const Settings = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // TODO: Replace with actual API call to save settings
-      // await settingsService.updateSettings(settings);
+      const profileUpdate: UserProfileUpdate = {
+        username: settings.profile.username,
+        email: settings.profile.email,
+        full_name: settings.profile.full_name,
+        phone: settings.profile.phone,
+        department: settings.profile.department
+      };
+      
+      const updatedProfile = await settingsService.updateUserProfile(profileUpdate);
+      setSettings(prev => ({
+        ...prev,
+        profile: {
+          ...updatedProfile,
+          role: prev.profile.role
+        }
+      }));
+      
       toast({
         title: 'Settings saved',
-        description: 'Your settings have been updated successfully.',
+        description: 'Your profile has been updated successfully.',
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to save settings. Please try again.',
+        description: error.message || 'Failed to save settings. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -204,6 +223,46 @@ export const Settings = () => {
         [key]: value
       }
     }));
+  };
+
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Error',
+        description: 'Please select an image file.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: 'Error',
+        description: 'File size must be less than 2MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const result = await settingsService.uploadAvatar(file);
+      updateSetting('profile', 'avatar_url', result.avatar_url);
+      toast({
+        title: 'Success',
+        description: 'Profile picture updated successfully.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to upload avatar.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const storagePercentage = (settings.system.storageUsed / settings.system.storageLimit) * 100;
@@ -295,13 +354,25 @@ export const Settings = () => {
               <CardContent className="space-y-6">
                 <div className="flex items-center gap-6">
                   <Avatar className="h-20 w-20 hover-scale transition-smooth">
-                    <AvatarImage src={settings.profile.avatar} />
+                    <AvatarImage src={settings.profile.avatar_url} />
                     <AvatarFallback className="text-lg font-semibold">
-                      {settings.profile.name.split(' ').map(n => n[0]).join('')}
+                      {(settings.profile.full_name || settings.profile.username).split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-2">
-                    <Button variant="outline" size="sm" className="hover-lift">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                      id="avatar-upload"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="hover-lift"
+                      onClick={() => document.getElementById('avatar-upload')?.click()}
+                    >
                       <Camera className="mr-2 h-4 w-4" />
                       Change Photo
                     </Button>
@@ -311,11 +382,11 @@ export const Settings = () => {
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="full_name">Full Name</Label>
                     <Input
-                      id="name"
-                      value={settings.profile.name}
-                      onChange={(e) => updateSetting('profile', 'name', e.target.value)}
+                      id="full_name"
+                      value={settings.profile.full_name || ''}
+                      onChange={(e) => updateSetting('profile', 'full_name', e.target.value)}
                       className="transition-smooth focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
@@ -333,7 +404,7 @@ export const Settings = () => {
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
                       id="phone"
-                      value={settings.profile.phone}
+                      value={settings.profile.phone || ''}
                       onChange={(e) => updateSetting('profile', 'phone', e.target.value)}
                       className="transition-smooth focus:ring-2 focus:ring-primary/20"
                     />
@@ -341,7 +412,7 @@ export const Settings = () => {
                   <div className="space-y-2">
                     <Label htmlFor="department">Department</Label>
                     <Select 
-                      value={settings.profile.department} 
+                      value={settings.profile.department || ''} 
                       onValueChange={(value) => updateSetting('profile', 'department', value)}
                     >
                       <SelectTrigger>
@@ -362,9 +433,11 @@ export const Settings = () => {
                   <Badge variant="outline" className="hover-scale transition-smooth">
                     {settings.profile.role}
                   </Badge>
-                  <Badge variant="secondary" className="hover-scale transition-smooth">
-                    {settings.profile.department}
-                  </Badge>
+                  {settings.profile.department && (
+                    <Badge variant="secondary" className="hover-scale transition-smooth">
+                      {settings.profile.department}
+                    </Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
