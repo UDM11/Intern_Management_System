@@ -237,31 +237,31 @@ const InternDetail = () => {
   if (!intern) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-3 sm:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 animate-fade-in">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4 animate-slide-in-left">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 animate-slide-in-left">
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => navigate('/interns')}
-              className="hover-lift"
+              className="hover-lift flex-shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 hover-scale transition-smooth">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+              <Avatar className="h-12 w-12 sm:h-16 sm:w-16 hover-scale transition-smooth flex-shrink-0">
                 <AvatarImage src="" />
-                <AvatarFallback className="text-xl font-bold">
+                <AvatarFallback className="text-sm sm:text-xl font-bold">
                   {intern.full_name ? intern.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'IN'}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h1 className="text-3xl font-bold gradient-text">{intern.full_name}</h1>
-                <p className="text-muted-foreground flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  {intern.email}
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-3xl font-bold gradient-text truncate">{intern.full_name}</h1>
+                <p className="text-muted-foreground flex items-center gap-2 text-sm sm:text-base">
+                  <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate">{intern.email}</span>
                 </p>
               </div>
             </div>
@@ -270,17 +270,18 @@ const InternDetail = () => {
             <Button 
               variant="outline"
               onClick={() => navigate(`/interns/${id}/edit`)}
-              className="hover-lift"
+              className="hover-lift w-full sm:w-auto"
             >
               <Edit className="mr-2 h-4 w-4" />
-              Edit Profile
+              <span className="hidden sm:inline">Edit Profile</span>
+              <span className="sm:hidden">Edit</span>
             </Button>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="order-2 lg:order-1 lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Profile Overview */}
             <Card className="hover-lift transition-smooth animate-slide-up">
               <CardHeader>
@@ -293,7 +294,7 @@ const InternDetail = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Phone className="h-4 w-4" />
@@ -392,40 +393,42 @@ const InternDetail = () => {
 
             {/* Tasks Section */}
             <Card className="hover-lift transition-smooth animate-slide-up">
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5" />
-                      Tasks & Assignments
-                    </CardTitle>
-                    <CardDescription>
-                      Manage and track intern tasks and progress
-                    </CardDescription>
+              <CardHeader className="pb-4 sm:pb-6">
+                <div className="flex flex-col gap-3 sm:gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                        Tasks & Assignments
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        Manage and track intern tasks and progress
+                      </CardDescription>
+                    </div>
+                    <Button 
+                      onClick={() => openTaskModal()}
+                      className="hover-lift hover-glow w-full sm:w-auto"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Task
+                    </Button>
                   </div>
-                  <Button 
-                    onClick={() => openTaskModal()}
-                    className="hover-lift hover-glow"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Task
-                  </Button>
+                  <div>
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger className="w-full sm:w-48">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Tasks</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="overdue">Overdue</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="mb-6">
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Tasks</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="overdue">Overdue</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
 
                 <div className="space-y-4">
                   {getFilteredTasks().length === 0 ? (
@@ -440,36 +443,37 @@ const InternDetail = () => {
                     getFilteredTasks().map((task, index) => (
                       <div 
                         key={task.id} 
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-smooth animate-scale-in"
+                        className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg hover:bg-muted/50 transition-smooth animate-scale-in"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0 w-full sm:w-auto">
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             {getStatusIcon(task.status)}
-                            <Badge className={getStatusBadge(task.status)}>
+                            <Badge className={`${getStatusBadge(task.status)} text-xs`}>
                               {task.status}
                             </Badge>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate">{task.title}</h4>
-                            <p className="text-sm text-muted-foreground truncate">{task.description}</p>
+                            <h4 className="font-medium truncate text-sm sm:text-base">{task.title}</h4>
+                            <p className="text-xs sm:text-sm text-muted-foreground truncate">{task.description}</p>
                             <p className="text-xs text-muted-foreground">
                               Due: {new Date(task.deadline).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleMarkComplete(task)}
-                            className="hover-lift"
+                            className="hover-lift flex-1 sm:flex-none text-xs sm:text-sm"
                           >
-                            {task.status === 'completed' ? 'Mark Pending' : 'Mark Complete'}
+                            <span className="hidden sm:inline">{task.status === 'completed' ? 'Mark Pending' : 'Mark Complete'}</span>
+                            <span className="sm:hidden">{task.status === 'completed' ? 'Pending' : 'Complete'}</span>
                           </Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -498,7 +502,7 @@ const InternDetail = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="order-1 lg:order-2 space-y-4 sm:space-y-6">
             {/* Task Statistics */}
             <Card className="hover-lift transition-smooth animate-slide-up">
               <CardHeader>
@@ -507,40 +511,40 @@ const InternDetail = () => {
                   Task Statistics
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    <span className="text-sm font-medium">Completed</span>
+                    <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-success" />
+                    <span className="text-xs sm:text-sm font-medium">Completed</span>
                   </div>
-                  <span className="font-bold text-success">
+                  <span className="font-bold text-success text-sm sm:text-base">
                     {intern?.task_stats?.completed_tasks || 0}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-warning" />
-                    <span className="text-sm font-medium">Pending</span>
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-warning" />
+                    <span className="text-xs sm:text-sm font-medium">Pending</span>
                   </div>
-                  <span className="font-bold text-warning">
+                  <span className="font-bold text-warning text-sm sm:text-base">
                     {intern?.task_stats?.pending_tasks || 0}
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-destructive" />
-                    <span className="text-sm font-medium">Overdue</span>
+                    <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
+                    <span className="text-xs sm:text-sm font-medium">Overdue</span>
                   </div>
-                  <span className="font-bold text-destructive">
+                  <span className="font-bold text-destructive text-sm sm:text-base">
                     {intern?.task_stats?.overdue_tasks || 0}
                   </span>
                 </div>
-                <div className="pt-4 border-t">
+                <div className="pt-3 sm:pt-4 border-t">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Completion Rate</span>
-                    <span className="font-bold">{completionRate.toFixed(1)}%</span>
+                    <span className="text-xs sm:text-sm font-medium">Completion Rate</span>
+                    <span className="font-bold text-sm sm:text-base">{completionRate.toFixed(1)}%</span>
                   </div>
-                  <Progress value={completionRate} className="mt-2 h-2" />
+                  <Progress value={completionRate} className="mt-2 h-1.5 sm:h-2" />
                 </div>
               </CardContent>
             </Card>
@@ -553,10 +557,10 @@ const InternDetail = () => {
                   Quick Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 sm:space-y-3">
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start hover-lift"
+                  className="w-full justify-start hover-lift text-sm"
                   onClick={() => navigate(`/interns/${id}/edit`)}
                 >
                   <Edit className="mr-2 h-4 w-4" />
@@ -564,7 +568,7 @@ const InternDetail = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start hover-lift"
+                  className="w-full justify-start hover-lift text-sm"
                   onClick={() => openTaskModal()}
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -572,7 +576,7 @@ const InternDetail = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start hover-lift"
+                  className="w-full justify-start hover-lift text-sm"
                   onClick={() => navigate('/interns')}
                 >
                   <Eye className="mr-2 h-4 w-4" />
@@ -585,9 +589,9 @@ const InternDetail = () => {
 
         {/* Task Modal */}
         <Dialog open={isTaskModalOpen} onOpenChange={setIsTaskModalOpen}>
-          <DialogContent className="animate-scale-in">
+          <DialogContent className="animate-scale-in w-[95vw] max-w-md sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-lg sm:text-xl">
                 {editingTask ? 'Edit Task' : 'Add New Task'}
               </DialogTitle>
             </DialogHeader>
@@ -637,11 +641,11 @@ const InternDetail = () => {
                 </Select>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsTaskModalOpen(false)}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setIsTaskModalOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button onClick={handleTaskSubmit} className="hover-lift">
+              <Button onClick={handleTaskSubmit} className="hover-lift w-full sm:w-auto">
                 {editingTask ? 'Update Task' : 'Create Task'}
               </Button>
             </DialogFooter>

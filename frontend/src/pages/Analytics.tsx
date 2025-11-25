@@ -284,12 +284,12 @@ export const Analytics = () => {
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="animate-slide-in-left">
-          <h1 className="text-3xl font-bold gradient-text">Analytics Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Comprehensive insights and performance metrics</p>
+          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Analytics Dashboard</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Comprehensive insights and performance metrics</p>
         </div>
-        <div className="flex gap-2 animate-slide-in-right">
+        <div className="flex flex-col sm:flex-row gap-2 animate-slide-in-right">
           <Select value={timeRange} onValueChange={(value: TimeRange) => setTimeRange(value)}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-full sm:w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -299,139 +299,142 @@ export const Analytics = () => {
               <SelectItem value="1y">Last year</SelectItem>
             </SelectContent>
           </Select>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="hover-lift"
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={exportData}
-            className="hover-lift"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="hover-lift flex-1 sm:flex-none"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={exportData}
+              className="hover-lift flex-1 sm:flex-none"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 animate-slide-up">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 animate-slide-up">
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Interns</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Interns</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.totalInterns}</div>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold">{data.totalInterns}</div>
             <div className="flex items-center text-xs text-muted-foreground">
               <TrendingUp className="mr-1 h-3 w-3 text-success" />
               <span className="text-success">+{growthRate}%</span>
-              <span className="ml-1">from last month</span>
+              <span className="ml-1 hidden sm:inline">from last month</span>
             </div>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Interns</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Active Interns</CardTitle>
             <UserCheck className="h-4 w-4 text-success" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{data.activeInterns}</div>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold text-success">{data.activeInterns}</div>
             <div className="flex items-center text-xs text-muted-foreground">
-              <span>{((data.activeInterns / data.totalInterns) * 100).toFixed(1)}% of total</span>
+              <span>{((data.activeInterns / data.totalInterns) * 100).toFixed(1)}%<span className="hidden sm:inline"> of total</span></span>
             </div>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Task Completion</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Task Completion</CardTitle>
             <Target className="h-4 w-4 text-primary" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{taskCompletionRate}%</div>
-            <Progress value={parseFloat(taskCompletionRate)} className="mt-2" />
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold">{taskCompletionRate}%</div>
+            <Progress value={parseFloat(taskCompletionRate)} className="mt-2 h-1.5 sm:h-2" />
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue Tasks</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Overdue Tasks</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{data.overdueTasks}</div>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold text-destructive">{data.overdueTasks}</div>
             <div className="flex items-center text-xs text-muted-foreground">
-              <span>Requires attention</span>
+              <span className="hidden sm:inline">Requires attention</span>
+              <span className="sm:hidden">Overdue</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Charts Section */}
-      <div className="grid gap-6 lg:grid-cols-3 animate-slide-up">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3 animate-slide-up">
         {/* Growth Chart */}
-        <Card className="lg:col-span-2 hover-lift transition-smooth">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Growth Trends</CardTitle>
-              <div className="flex items-center gap-2">
+        <Card className="order-1 lg:order-1 lg:col-span-2 hover-lift transition-smooth">
+          <CardHeader className="pb-3 sm:pb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <CardTitle className="text-lg sm:text-xl">Growth Trends</CardTitle>
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button
                   variant={chartType === 'bar' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setChartType('bar')}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                 >
-                  <BarChart3 className="h-4 w-4" />
+                  <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   variant={chartType === 'line' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setChartType('line')}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                 >
-                  <LineChartIcon className="h-4 w-4" />
+                  <LineChartIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
                 <Button
                   variant={chartType === 'area' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setChartType('area')}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                 >
-                  <Activity className="h-4 w-4" />
+                  <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               {renderChart()}
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Department Distribution */}
-        <Card className="hover-lift transition-smooth">
-          <CardHeader>
-            <CardTitle>Department Distribution</CardTitle>
+        <Card className="order-2 lg:order-2 hover-lift transition-smooth">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Department Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
                   data={data.departmentStats}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
+                  innerRadius={40}
+                  outerRadius={80}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -448,15 +451,15 @@ export const Analytics = () => {
                 />
               </PieChart>
             </ResponsiveContainer>
-            <div className="mt-4 space-y-2">
+            <div className="mt-3 sm:mt-4 space-y-2">
               {data.departmentStats.map((dept, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
+                <div key={index} className="flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-2">
                     <div 
-                      className="w-3 h-3 rounded-full" 
+                      className="w-2 h-2 sm:w-3 sm:h-3 rounded-full" 
                       style={{ backgroundColor: dept.color }}
                     />
-                    <span>{dept.name}</span>
+                    <span className="truncate">{dept.name}</span>
                   </div>
                   <span className="font-medium">{dept.value}</span>
                 </div>
@@ -467,31 +470,31 @@ export const Analytics = () => {
       </div>
 
       {/* Performance Metrics */}
-      <div className="grid gap-6 lg:grid-cols-2 animate-slide-up">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 animate-slide-up">
         <Card className="hover-lift transition-smooth">
-          <CardHeader>
-            <CardTitle>Department Performance</CardTitle>
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Department Performance</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4">
             {data.performanceMetrics.map((metric, index) => (
               <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{metric.department}</span>
-                  <Badge variant="outline">{metric.completion}% Complete</Badge>
+                <div className="flex items-center justify-between text-xs sm:text-sm">
+                  <span className="font-medium truncate">{metric.department}</span>
+                  <Badge variant="outline" className="text-xs">{metric.completion}%<span className="hidden sm:inline"> Complete</span></Badge>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Task Completion</span>
                     <span>{metric.completion}%</span>
                   </div>
-                  <Progress value={metric.completion} className="h-2" />
+                  <Progress value={metric.completion} className="h-1.5 sm:h-2" />
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Efficiency Score</span>
                     <span>{metric.efficiency}%</span>
                   </div>
-                  <Progress value={metric.efficiency} className="h-2" />
+                  <Progress value={metric.efficiency} className="h-1.5 sm:h-2" />
                 </div>
               </div>
             ))}
@@ -500,11 +503,11 @@ export const Analytics = () => {
 
         {/* Recent Activity */}
         <Card className="hover-lift transition-smooth">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={data.recentActivity}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                 <XAxis 

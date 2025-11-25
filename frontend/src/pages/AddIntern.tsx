@@ -150,20 +150,20 @@ const AddIntern = () => {
   };
 
   const renderPersonalInfo = () => (
-    <div className="space-y-6 animate-slide-up">
-      <div className="flex items-center gap-6">
-        <Avatar className="h-20 w-20 hover-scale transition-smooth">
-          <AvatarFallback className="text-lg font-semibold">
+    <div className="space-y-4 sm:space-y-6 animate-slide-up">
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <Avatar className="h-16 w-16 sm:h-20 sm:w-20 hover-scale transition-smooth">
+          <AvatarFallback className="text-sm sm:text-lg font-semibold">
             {formData.full_name.split(' ').map(n => n[0]).join('').toUpperCase() || 'IN'}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <h3 className="text-lg font-semibold">Profile Picture</h3>
-          <p className="text-sm text-muted-foreground">Add a photo to personalize the profile</p>
+        <div className="text-center sm:text-left">
+          <h3 className="text-base sm:text-lg font-semibold">Profile Picture</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">Add a photo to personalize the profile</p>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="full_name" className="flex items-center gap-2">
             <User className="h-4 w-4" />
@@ -240,8 +240,8 @@ const AddIntern = () => {
   );
 
   const renderProfessionalInfo = () => (
-    <div className="space-y-6 animate-slide-up">
-      <div className="grid gap-6 md:grid-cols-2">
+    <div className="space-y-4 sm:space-y-6 animate-slide-up">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="department" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
@@ -315,14 +315,14 @@ const AddIntern = () => {
   );
 
   const renderReview = () => (
-    <div className="space-y-6 animate-slide-up">
+    <div className="space-y-4 sm:space-y-6 animate-slide-up">
       <div className="text-center space-y-2">
-        <CheckCircle className="h-16 w-16 text-success mx-auto" />
-        <h2 className="text-2xl font-bold">Review Information</h2>
-        <p className="text-muted-foreground">Please review all the information before submitting</p>
+        <CheckCircle className="h-12 w-12 sm:h-16 sm:w-16 text-success mx-auto" />
+        <h2 className="text-xl sm:text-2xl font-bold">Review Information</h2>
+        <p className="text-muted-foreground text-sm sm:text-base">Please review all the information before submitting</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
         <Card className="hover-lift transition-smooth">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -367,37 +367,37 @@ const AddIntern = () => {
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
-        <div className="flex items-center gap-4 animate-slide-in-left">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-3 sm:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 animate-fade-in">
+        <div className="flex items-center gap-3 sm:gap-4 animate-slide-in-left">
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={() => navigate('/interns')}
-            className="hover-lift"
+            className="hover-lift flex-shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold gradient-text">Add New Intern</h1>
-            <p className="text-muted-foreground">Create a comprehensive intern profile</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-bold gradient-text">Add New Intern</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Create a comprehensive intern profile</p>
           </div>
         </div>
 
         <Card className="animate-slide-up">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm">
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span>Progress</span>
                 <span>{Math.round(progress)}% Complete</span>
               </div>
-              <Progress value={progress} className="h-2" />
+              <Progress value={progress} className="h-1.5 sm:h-2" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="animate-slide-up">
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => {
                 const Icon = step.icon;
@@ -407,7 +407,7 @@ const AddIntern = () => {
                 return (
                   <div key={step.id} className="flex items-center">
                     <div 
-                      className={`flex items-center justify-center w-10 h-10 rounded-full transition-smooth ${
+                      className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full transition-smooth ${
                         isActive 
                           ? 'bg-primary text-primary-foreground' 
                           : isCompleted 
@@ -415,7 +415,7 @@ const AddIntern = () => {
                           : 'bg-muted text-muted-foreground'
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                     <div className="ml-2 hidden sm:block">
                       <p className={`text-sm font-medium ${
@@ -425,7 +425,7 @@ const AddIntern = () => {
                       </p>
                     </div>
                     {index < steps.length - 1 && (
-                      <div className={`w-12 h-0.5 mx-4 ${
+                      <div className={`w-6 sm:w-12 h-0.5 mx-2 sm:mx-4 ${
                         isCompleted ? 'bg-success' : 'bg-muted'
                       }`} />
                     )}
@@ -437,15 +437,15 @@ const AddIntern = () => {
         </Card>
 
         <Card className="animate-slide-up">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="pb-4 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
               {(() => {
                 const Icon = steps[currentStep].icon;
-                return <Icon className="h-5 w-5" />;
+                return <Icon className="h-4 w-4 sm:h-5 sm:w-5" />;
               })()}
               {steps[currentStep].title}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Step {currentStep + 1} of {steps.length}
             </CardDescription>
           </CardHeader>
@@ -455,14 +455,14 @@ const AddIntern = () => {
         </Card>
 
         <Card className="animate-slide-up">
-          <CardContent className="pt-6">
-            <div className="flex justify-between">
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={currentStep === 0}
-                className="hover-lift"
+                className="hover-lift w-full sm:w-auto"
               >
                 Previous
               </Button>
@@ -472,24 +472,26 @@ const AddIntern = () => {
                   <Button
                     onClick={handleSubmit}
                     disabled={isLoading}
-                    className="hover-lift hover-glow"
+                    className="hover-lift hover-glow w-full sm:w-auto"
                   >
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
+                        <span className="hidden sm:inline">Creating...</span>
+                        <span className="sm:hidden">Creating</span>
                       </>
                     ) : (
                       <>
                         <Save className="mr-2 h-4 w-4" />
-                        Create Intern
+                        <span className="hidden sm:inline">Create Intern</span>
+                        <span className="sm:hidden">Create</span>
                       </>
                     )}
                   </Button>
                 ) : (
                   <Button
                     onClick={handleNext}
-                    className="hover-lift"
+                    className="hover-lift w-full sm:w-auto"
                   >
                     Next
                   </Button>

@@ -243,32 +243,34 @@ const Interns = () => {
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="animate-slide-in-left">
-          <h1 className="text-3xl font-bold gradient-text">Interns Management</h1>
-          <p className="text-muted-foreground mt-1">Manage and track all your interns efficiently</p>
+          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Interns Management</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage and track all your interns efficiently</p>
         </div>
-        <div className="flex gap-2 animate-slide-in-right">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="hover-lift"
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={exportData}
-            className="hover-lift"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-2 animate-slide-in-right">
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="hover-lift flex-1 sm:flex-none"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={exportData}
+              className="hover-lift flex-1 sm:flex-none"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+          </div>
           <Button 
             onClick={() => navigate('/interns/add')}
-            className="hover-lift hover-glow"
+            className="hover-lift hover-glow w-full sm:w-auto"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Intern
@@ -277,68 +279,70 @@ const Interns = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-up">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-slide-up">
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Interns</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Interns</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">All registered interns</p>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
+            <p className="text-xs text-muted-foreground hidden sm:block">All registered interns</p>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Interns</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Active Interns</CardTitle>
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.active}</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold text-success">{stats.active}</div>
+            <p className="text-xs text-muted-foreground hidden sm:block">Currently active</p>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactive Interns</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Inactive Interns</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-muted-foreground">{stats.inactive}</div>
-            <p className="text-xs text-muted-foreground">Not currently active</p>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold text-muted-foreground">{stats.inactive}</div>
+            <p className="text-xs text-muted-foreground hidden sm:block">Not currently active</p>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Departments</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Departments</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.departments}</div>
-            <p className="text-xs text-muted-foreground">Active departments</p>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold">{stats.departments}</div>
+            <p className="text-xs text-muted-foreground hidden sm:block">Active departments</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters and Controls */}
       <Card className="animate-slide-up">
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center flex-1">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name or email..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 transition-smooth focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              
-              <div className="flex gap-2 flex-wrap">
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 transition-smooth focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            
+            {/* Filters and View Toggle */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+              <div className="flex flex-col sm:flex-row gap-2 flex-1">
                 <Select value={department || undefined} onValueChange={setDepartment}>
                   <SelectTrigger className="w-full sm:w-48">
                     <SelectValue placeholder="All Departments" />
@@ -369,32 +373,32 @@ const Interns = () => {
                       setDepartment('');
                       setStatus('');
                     }}
-                    className="hover-lift"
+                    className="hover-lift w-full sm:w-auto"
                   >
                     Clear Filters
                   </Button>
                 )}
               </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <div className="flex items-center border rounded-lg p-1">
-                <Button
-                  variant={viewMode === 'table' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('table')}
-                  className="h-8 w-8 p-0"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                </Button>
+              
+              <div className="flex items-center gap-2 justify-center sm:justify-end">
+                <div className="flex items-center border rounded-lg p-1">
+                  <Button
+                    variant={viewMode === 'table' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('table')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -566,7 +570,7 @@ const Interns = () => {
             </Table>
           </Card>
         ) : (
-          <div className="grid-responsive">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredInterns.length === 0 ? (
               <Card className="col-span-full">
                 <CardContent className="flex flex-col items-center justify-center py-12">

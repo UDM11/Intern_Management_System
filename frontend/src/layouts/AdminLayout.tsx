@@ -10,10 +10,15 @@ interface AdminLayoutProps {
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  const toggleMobileSidebar = () => {
+    setMobileOpen(!mobileOpen);
   };
 
   return (
@@ -21,14 +26,15 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
       <Sidebar 
         collapsed={sidebarCollapsed} 
         onToggle={toggleSidebar}
-        isMobile={isMobile}
+        mobileOpen={mobileOpen}
+        onMobileToggle={toggleMobileSidebar}
       />
       <div className={cn(
         "flex flex-1 flex-col min-w-0 transition-all duration-300",
         !isMobile && (sidebarCollapsed ? "md:ml-16" : "md:ml-72")
       )}>
-        <Navbar />
-        <main className="flex-1 p-4 md:p-6 overflow-auto pb-20 md:pb-6">
+        <Navbar onMobileMenuClick={toggleMobileSidebar} />
+        <main className="flex-1 p-4 md:p-6 overflow-auto">
           <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>

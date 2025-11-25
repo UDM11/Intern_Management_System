@@ -44,7 +44,8 @@ export const settingsService = {
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/users/profile/avatar`, {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const response = await fetch(`${baseUrl}/users/profile/avatar`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -57,6 +58,18 @@ export const settingsService = {
       throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
     }
 
-    return response.json();
+    const result = await response.json();
+    // Convert relative URL to absolute URL
+    const backendBaseUrl = baseUrl.replace('/api', '');
+    result.avatar_url = `${backendBaseUrl}${result.avatar_url}`;
+    return result;
+  },
+
+  // Helper function to get full avatar URL
+  getFullAvatarUrl: (avatarUrl?: string): string | undefined => {
+    if (!avatarUrl) return undefined;
+    if (avatarUrl.startsWith('http')) return avatarUrl;
+    const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace('/api', '');
+    return `${baseUrl}${avatarUrl}`;
   },
 };

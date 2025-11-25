@@ -122,77 +122,66 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-slide-in-left">
         <div>
-          <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome back! Here's your intern management overview.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Welcome back! Here's your intern management overview.</p>
         </div>
-        <Button onClick={() => navigate('/interns/add')} className="hover-lift hover-glow">
+        <Button onClick={() => navigate('/interns/add')} className="hover-lift hover-glow w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Add Intern
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 animate-slide-up">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 animate-slide-up">
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Interns</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total_users}</div>
-            <p className="text-xs text-muted-foreground">System users</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover-lift transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Interns</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total_interns}</div>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold">{stats.total_interns}</div>
             <p className="text-xs text-muted-foreground">All interns</p>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Interns</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Active Interns</CardTitle>
             <UserCheck className="h-4 w-4 text-success" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.active_interns}</div>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold text-success">{stats.active_interns}</div>
             <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Tasks</CardTitle>
             <Clock className="h-4 w-4 text-primary" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">{stats.total_tasks}</div>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold text-primary">{stats.total_tasks}</div>
             <p className="text-xs text-muted-foreground">All tasks</p>
           </CardContent>
         </Card>
         
         <Card className="hover-lift transition-smooth">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Completed</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-success" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.completed_tasks}</div>
+          <CardContent className="pb-3">
+            <div className="text-xl sm:text-2xl font-bold text-success">{stats.completed_tasks}</div>
             <p className="text-xs text-muted-foreground">Tasks finished</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content */}
-      <div className="grid gap-6 lg:grid-cols-3 animate-slide-up">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3 animate-slide-up">
         {/* Recent Activity */}
-        <Card className="lg:col-span-2 hover-lift transition-smooth">
+        <Card className="order-2 lg:order-1 lg:col-span-2 hover-lift transition-smooth">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
@@ -204,7 +193,7 @@ const Dashboard = () => {
               {recentActivities.length > 0 ? recentActivities.map((activity, index) => (
                 <div 
                   key={activity.id} 
-                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors animate-fade-in"
+                  className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex-shrink-0">
@@ -232,7 +221,7 @@ const Dashboard = () => {
         </Card>
 
         {/* Top Performers */}
-        <Card className="hover-lift transition-smooth">
+        <Card className="order-1 lg:order-2 hover-lift transition-smooth">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Award className="h-5 w-5" />
@@ -244,12 +233,12 @@ const Dashboard = () => {
               {topPerformers.length > 0 ? topPerformers.map((performer, index) => (
                 <div 
                   key={performer.id} 
-                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer animate-fade-in"
+                  className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer animate-fade-in"
                   style={{ animationDelay: `${index * 150}ms` }}
                   onClick={() => navigate(`/interns/${performer.id}`)}
                 >
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-xs sm:text-sm">
                       {getInitials(performer.name)}
                     </AvatarFallback>
                   </Avatar>
@@ -265,7 +254,7 @@ const Dashboard = () => {
                   <div className="text-right">
                     <p className="text-sm font-bold">{performer.completedTasks}</p>
                     <p className="text-xs text-muted-foreground">tasks</p>
-                    <Progress value={performer.completionRate} className="w-12 h-1 mt-1" />
+                    <Progress value={performer.completionRate} className="w-8 sm:w-12 h-1 mt-1" />
                     <p className="text-xs text-success font-medium">{performer.completionRate}%</p>
                   </div>
                 </div>
@@ -287,44 +276,44 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 animate-slide-up">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 animate-slide-up">
         <Card className="cursor-pointer hover-lift transition-smooth" onClick={() => navigate('/interns/add')}>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-primary/10">
-                <Plus className="h-6 w-6 text-primary" />
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 rounded-full bg-primary/10">
+                <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold">Add New Intern</h3>
-                <p className="text-sm text-muted-foreground">Register a new intern</p>
+                <h3 className="text-sm sm:text-base font-semibold">Add New Intern</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">Register a new intern</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="cursor-pointer hover-lift transition-smooth" onClick={() => navigate('/interns')}>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-success/10">
-                <Eye className="h-6 w-6 text-success" />
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 rounded-full bg-success/10">
+                <Eye className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
               </div>
               <div>
-                <h3 className="font-semibold">View All Interns</h3>
-                <p className="text-sm text-muted-foreground">Manage intern profiles</p>
+                <h3 className="text-sm sm:text-base font-semibold">View All Interns</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">Manage intern profiles</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover-lift transition-smooth" onClick={() => navigate('/interns')}>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-warning/10">
-                <TrendingUp className="h-6 w-6 text-warning" />
+        <Card className="cursor-pointer hover-lift transition-smooth sm:col-span-2 lg:col-span-1" onClick={() => navigate('/interns')}>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 rounded-full bg-warning/10">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
               </div>
               <div>
-                <h3 className="font-semibold">Performance</h3>
-                <p className="text-sm text-muted-foreground">View analytics</p>
+                <h3 className="text-sm sm:text-base font-semibold">Performance</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">View analytics</p>
               </div>
             </div>
           </CardContent>

@@ -1,4 +1,4 @@
-import { User, Search, Settings, LogOut, Moon, Sun, X, Shield, HelpCircle } from 'lucide-react';
+import { User, Search, Settings, LogOut, Moon, Sun, X, Shield, HelpCircle, Menu } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,11 @@ import { toast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export const Navbar = () => {
+interface NavbarProps {
+  onMobileMenuClick?: () => void;
+}
+
+export const Navbar = ({ onMobileMenuClick }: NavbarProps) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -147,6 +151,14 @@ export const Navbar = () => {
     <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden hover:bg-accent transition-colors"
+            onClick={onMobileMenuClick}
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
           <div className="hidden md:flex flex-col">
             <h1 className="text-lg font-semibold text-foreground">{getPageTitle()}</h1>
             <p className="text-xs text-muted-foreground">

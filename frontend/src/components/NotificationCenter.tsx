@@ -118,7 +118,8 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
     }
   };
 
-  const formatTimeAgo = (timestamp: string) => {
+  const formatTimeAgo = (timestamp: string) => {ntend
+    
     const now = new Date();
     const time = new Date(timestamp);
     const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));

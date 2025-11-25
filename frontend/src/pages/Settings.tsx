@@ -136,6 +136,7 @@ export const Settings = () => {
         ...prev,
         profile: {
           ...userProfile,
+          avatar_url: settingsService.getFullAvatarUrl(userProfile.avatar_url) || userProfile.avatar_url,
           role: 'Admin' // Default role, can be fetched from API if needed
         }
       }));
@@ -272,32 +273,34 @@ export const Settings = () => {
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="animate-slide-in-left">
-          <h1 className="text-3xl font-bold gradient-text">Settings</h1>
-          <p className="text-muted-foreground mt-1">Manage your application preferences and configuration</p>
+          <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Settings</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage your application preferences and configuration</p>
         </div>
-        <div className="flex gap-2 animate-slide-in-right">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleExport}
-            className="hover-lift"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setResetDialog(true)}
-            className="hover-lift"
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Reset
-          </Button>
+        <div className="flex flex-col sm:flex-row gap-2 animate-slide-in-right">
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleExport}
+              className="hover-lift flex-1 sm:flex-none"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setResetDialog(true)}
+              className="hover-lift flex-1 sm:flex-none"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Reset</span>
+            </Button>
+          </div>
           <Button 
             onClick={handleSave}
             disabled={isSaving}
-            className="hover-lift hover-glow"
+            className="hover-lift hover-glow w-full sm:w-auto"
           >
             {isSaving ? (
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -312,30 +315,32 @@ export const Settings = () => {
       {/* Settings Tabs */}
       <div className="animate-slide-up">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 h-auto p-1">
-            <TabsTrigger value="profile" className="flex items-center gap-2 py-2">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto p-1">
+            <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-2 py-2 px-2 sm:px-3">
               <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Profile</span>
+              <span className="text-xs sm:text-sm">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="preferences" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="preferences" className="flex items-center gap-1 sm:gap-2 py-2 px-2 sm:px-3">
               <Palette className="h-4 w-4" />
-              <span className="hidden sm:inline">Preferences</span>
+              <span className="text-xs sm:text-sm hidden sm:inline">Preferences</span>
+              <span className="text-xs sm:hidden">Prefs</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="notifications" className="flex items-center gap-1 sm:gap-2 py-2 px-2 sm:px-3">
               <Bell className="h-4 w-4" />
-              <span className="hidden sm:inline">Notifications</span>
+              <span className="text-xs sm:text-sm hidden sm:inline">Notifications</span>
+              <span className="text-xs sm:hidden">Notifs</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="security" className="flex items-center gap-1 sm:gap-2 py-2 px-2 sm:px-3">
               <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Security</span>
+              <span className="text-xs sm:text-sm">Security</span>
             </TabsTrigger>
-            <TabsTrigger value="privacy" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="privacy" className="flex items-center gap-1 sm:gap-2 py-2 px-2 sm:px-3">
               <Lock className="h-4 w-4" />
-              <span className="hidden sm:inline">Privacy</span>
+              <span className="text-xs sm:text-sm">Privacy</span>
             </TabsTrigger>
-            <TabsTrigger value="system" className="flex items-center gap-2 py-2">
+            <TabsTrigger value="system" className="flex items-center gap-1 sm:gap-2 py-2 px-2 sm:px-3">
               <Database className="h-4 w-4" />
-              <span className="hidden sm:inline">System</span>
+              <span className="text-xs sm:text-sm">System</span>
             </TabsTrigger>
           </TabsList>
 
@@ -351,15 +356,15 @@ export const Settings = () => {
                   Update your personal information and profile details
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <Avatar className="h-20 w-20 hover-scale transition-smooth">
-                    <AvatarImage src={settings.profile.avatar_url} />
-                    <AvatarFallback className="text-lg font-semibold">
-                      {(settings.profile.full_name || settings.profile.username).split(' ').map(n => n[0]).join('')}
+              <CardContent className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                  <Avatar className="h-16 w-16 sm:h-20 sm:w-20 hover-scale transition-smooth">
+                    <AvatarImage src={settingsService.getFullAvatarUrl(settings.profile.avatar_url)} />
+                    <AvatarFallback className="text-sm sm:text-lg font-semibold">
+                      {(settings.profile.full_name || settings.profile.username || 'U').split(' ').map(n => n[0]).join('').toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="space-y-2">
+                  <div className="space-y-2 text-center sm:text-left">
                     <input
                       type="file"
                       accept="image/*"
@@ -370,17 +375,17 @@ export const Settings = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="hover-lift"
+                      className="hover-lift w-full sm:w-auto"
                       onClick={() => document.getElementById('avatar-upload')?.click()}
                     >
                       <Camera className="mr-2 h-4 w-4" />
                       Change Photo
                     </Button>
-                    <p className="text-sm text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
                   </div>
                 </div>
                 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="full_name">Full Name</Label>
                     <Input
@@ -458,7 +463,7 @@ export const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Theme</Label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                       { value: 'light', icon: Sun, label: 'Light' },
                       { value: 'dark', icon: Moon, label: 'Dark' },
@@ -469,7 +474,7 @@ export const Settings = () => {
                         variant={settings.preferences.theme === value ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => updateSetting('preferences', 'theme', value)}
-                        className="flex items-center gap-2 hover-lift"
+                        className="flex items-center gap-2 hover-lift justify-center"
                       >
                         <Icon className="h-4 w-4" />
                         {label}
@@ -511,7 +516,7 @@ export const Settings = () => {
                   Configure how you receive notifications
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 {[
                   { key: 'email', icon: Mail, label: 'Email Notifications', desc: 'Receive notifications via email' },
                   { key: 'push', icon: Smartphone, label: 'Push Notifications', desc: 'Browser and mobile push notifications' },
@@ -519,11 +524,11 @@ export const Settings = () => {
                   { key: 'sound', icon: Volume2, label: 'Sound Alerts', desc: 'Play sound for notifications' }
                 ].map(({ key, icon: Icon, label, desc }) => (
                   <div key={key} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-smooth">
-                    <div className="flex items-center gap-3">
-                      <Icon className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{label}</p>
-                        <p className="text-sm text-muted-foreground">{desc}</p>
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm sm:text-base truncate">{label}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{desc}</p>
                       </div>
                     </div>
                     <Switch
@@ -548,11 +553,11 @@ export const Settings = () => {
                   Manage your account security preferences
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-smooth">
-                  <div>
-                    <p className="font-medium">Two-Factor Authentication</p>
-                    <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base">Two-Factor Authentication</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Add an extra layer of security</p>
                   </div>
                   <Switch
                     checked={settings.security.twoFactorAuth}
@@ -593,7 +598,7 @@ export const Settings = () => {
                   Control your privacy and data sharing preferences
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 <div className="space-y-2">
                   <Label>Profile Visibility</Label>
                   <Select 
@@ -612,9 +617,9 @@ export const Settings = () => {
                 </div>
                 
                 <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-smooth">
-                  <div>
-                    <p className="font-medium">Activity Tracking</p>
-                    <p className="text-sm text-muted-foreground">Track your activity for analytics</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base">Activity Tracking</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Track your activity for analytics</p>
                   </div>
                   <Switch
                     checked={settings.privacy.activityTracking}
@@ -637,11 +642,11 @@ export const Settings = () => {
                   Manage system preferences and storage
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-smooth">
-                  <div>
-                    <p className="font-medium">Auto Backup</p>
-                    <p className="text-sm text-muted-foreground">Automatically backup your data</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm sm:text-base">Auto Backup</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Automatically backup your data</p>
                   </div>
                   <Switch
                     checked={settings.system.autoBackup}
@@ -650,11 +655,11 @@ export const Settings = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span>Storage Used</span>
                     <span>{settings.system.storageUsed}GB / {settings.system.storageLimit}GB</span>
                   </div>
-                  <Progress value={storagePercentage} className="h-2" />
+                  <Progress value={storagePercentage} className="h-1.5 sm:h-2" />
                   <p className="text-xs text-muted-foreground">
                     {(100 - storagePercentage).toFixed(1)}% available
                   </p>
