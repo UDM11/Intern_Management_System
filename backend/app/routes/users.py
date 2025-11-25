@@ -6,7 +6,7 @@ import os
 import uuid
 from config.database import get_db
 from app.models.user import User
-from app.utils.auth import get_current_user, get_password_hash
+from app.utils.auth import get_current_user
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -26,30 +26,6 @@ class UserProfile(BaseModel):
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
     is_active: bool
-
-@router.get("/")
-def get_all_users(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get all users"""
-    users = db.query(User).all()
-    return [{"id": user.id, "username": user.username, "email": user.email, "is_active": user.is_active} for user in users]
-
-@router.delete("/{user_id}")
-def delete_user(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Delete user by ID"""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    db.delete(user)
-    db.commit()
-    return {"message": f"User {user.username} deleted successfully"}
 
 @router.get("/profile", response_model=UserProfile)
 def get_current_user_profile(
@@ -88,7 +64,7 @@ def update_user_profile(
                 User.id != current_user.id
             ).first()
             if existing_user:
-                raise HTTPException(status_code=400, detail="Email already registered")
+                raise HTTPException(status_code=400, detail="Email already in use")
         
         # Check if username is already taken by another user
         if 'username' in update_data:
@@ -97,7 +73,7 @@ def update_user_profile(
                 User.id != current_user.id
             ).first()
             if existing_user:
-                raise HTTPException(status_code=400, detail="Username already taken")
+                raise HTTPException(status_code=400, detail="Username already in use")
         
         # Update user fields safely
         for field, value in update_data.items():
@@ -166,15 +142,3 @@ def upload_avatar(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error uploading avatar: {str(e)}")
 
-@router.get("/{user_id}")
-def get_user(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get user by ID"""
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    return {"id": user.id, "username": user.username, "email": user.email, "is_active": user.is_active}
