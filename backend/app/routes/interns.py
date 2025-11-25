@@ -10,6 +10,7 @@ from app.models.intern import Intern, InternStatus
 from app.models.task import Task, TaskStatus
 from app.models.user import User
 from app.utils.auth import get_current_user
+from app.routes.notifications import create_notification
 
 router = APIRouter(prefix="/interns", tags=["interns"])
 
@@ -183,6 +184,16 @@ def create_intern(
     db.add(db_intern)
     db.commit()
     db.refresh(db_intern)
+    
+    # Create notification
+    create_notification(
+        db=db,
+        type="intern_created",
+        title="New Intern Added",
+        message=f"New intern {db_intern.full_name} has been added to {db_intern.department} department.",
+        priority="medium"
+    )
+    
     return InternResponse.from_orm(db_intern)
 
 @router.put("/{intern_id}", response_model=InternResponse)

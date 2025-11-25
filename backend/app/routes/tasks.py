@@ -8,6 +8,7 @@ from app.models.task import Task, TaskStatus
 from app.models.intern import Intern
 from app.models.user import User
 from app.utils.auth import get_current_user
+from app.routes.notifications import create_notification
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -84,6 +85,16 @@ def create_task(
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
+    
+    # Create notification
+    create_notification(
+        db=db,
+        type="task_assigned",
+        title="New Task Assigned",
+        message=f"Task '{db_task.title}' has been assigned to {intern.full_name}.",
+        priority="medium"
+    )
+    
     return db_task
 
 @router.put("/{task_id}", response_model=TaskResponse)
