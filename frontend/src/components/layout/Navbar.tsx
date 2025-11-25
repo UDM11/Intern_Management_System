@@ -10,10 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { toast } from '@/components/ui/use-toast';
-import { useState, useEffect } from 'react';
+import { settingsService } from '@/services/settingsService';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface NavbarProps {
@@ -35,6 +36,7 @@ export const Navbar = ({ onMobileMenuClick }: NavbarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [profileOpen, setProfileOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -44,32 +46,59 @@ export const Navbar = ({ onMobileMenuClick }: NavbarProps) => {
   useEffect(() => {
     const handleClose = () => {
       setProfileOpen(false);
+      setIsSearchOpen(false);
     };
 
-    // Scroll events
-    window.addEventListener('scroll', handleClose, { passive: true });
-    document.addEventListener('scroll', handleClose, { passive: true });
-    
-    // Touch move events for mobile scrolling (not touchstart to avoid immediate close)
-    document.addEventListener('touchmove', handleClose, { passive: true });
-    
-    // Main content scroll
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      mainContent.addEventListener('scroll', handleClose, { passive: true });
-      mainContent.addEventListener('touchmove', handleClose, { passive: true });
-    }
-
-    return () => {
-      window.removeEventListener('scroll', handleClose);
-      document.removeEventListener('scroll', handleClose);
-      document.removeEventListener('touchmove', handleClose);
-      if (mainContent) {
-        mainContent.removeEventListener('scroll', handleClose);
-        mainContent.removeEventListener('touchmove', handleClose);
+    // Simple scroll handler that directly closes dropdowns
+    const handleScroll = () => {
+      if (profileOpen) {
+        setProfileOpen(false);
+      }
+      if (isSearchOpen) {
+        setIsSearchOpen(false);
       }
     };
-  }, []);
+
+    // Scroll events on multiple elements
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('scroll', handleScroll, { passive: true });
+    document.body.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Touch move events for mobile scrolling
+    document.addEventListener('touchmove', handleScroll, { passive: true });
+    document.body.addEventListener('touchmove', handleScroll, { passive: true });
+    
+    // Find all scrollable containers
+    const scrollableElements = [
+      document.querySelector('main'),
+      document.querySelector('[data-scroll-area]'),
+      document.querySelector('.overflow-auto'),
+      document.querySelector('.overflow-y-auto'),
+      document.querySelector('.scroll-area')
+    ].filter(Boolean);
+    
+    scrollableElements.forEach(element => {
+      if (element) {
+        element.addEventListener('scroll', handleScroll, { passive: true });
+        element.addEventListener('touchmove', handleScroll, { passive: true });
+      }
+    });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll);
+      document.body.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('touchmove', handleScroll);
+      document.body.removeEventListener('touchmove', handleScroll);
+      
+      scrollableElements.forEach(element => {
+        if (element) {
+          element.removeEventListener('scroll', handleScroll);
+          element.removeEventListener('touchmove', handleScroll);
+        }
+      });
+    };
+  }, [profileOpen, isSearchOpen]);
 
   useEffect(() => {
     if (isDark) {
@@ -81,12 +110,21 @@ export const Navbar = ({ onMobileMenuClick }: NavbarProps) => {
     }
   }, [isDark]);
 
-  const getInitials = (name: string) => {
+  const getInitials = (name?: string) => {
+    if (!name) return 'U';
     return name
       .split(' ')
       .map((n) => n[0])
       .join('')
       .toUpperCase();
+  };
+
+  const getUserDisplayName = () => {
+    return user?.full_name || user?.username || 'User';
+  };
+
+  const getUserEmail = () => {
+    return user?.email || 'user@example.com';
   };
 
   const getPageTitle = () => {
@@ -206,12 +244,13 @@ export const Navbar = ({ onMobileMenuClick }: NavbarProps) => {
 
           <NotificationCenter />
 
-          <DropdownMenu open={profileOpen} onOpenChange={setProfileOpen}>
+          <DropdownMenu open={profileOpen} onOpenChange={setProfileOpen} modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
+                  <AvatarImage src={settingsService.getFullAvatarUrl(user?.avatar_url)} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                    {user ? getInitials(user.name) : 'U'}
+                    {getInitials(getUserDisplayName())}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -219,11 +258,14 @@ export const Navbar = ({ onMobileMenuClick }: NavbarProps) => {
             <DropdownMenuContent align="end" className="w-64">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.email || 'user@example.com'}</p>
+                  <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{getUserEmail()}</p>
                   <div className="flex items-center gap-1 mt-2">
                     <Shield className="h-3 w-3 text-green-500" />
                     <span className="text-xs text-green-600">Admin</span>
+                    {user?.department && (
+                      <span className="text-xs text-muted-foreground">• {user.department}</span>
+                    )}
                   </div>
                 </div>
               </DropdownMenuLabel>

@@ -18,11 +18,6 @@ export const authService = {
     const data = await response.json();
     return {
       token: data.access_token,
-      user: {
-        id: '1',
-        email: email,
-        name: 'Admin User',
-      },
     };
   },
 

@@ -19,17 +19,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { notificationService, Notification } from '@/services/notificationService';
 
-interface Notification {
-  id: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  title: string;
-  message: string;
-  timestamp: string;
-  read: boolean;
-  actionUrl?: string;
-  priority: 'low' | 'medium' | 'high';
-}
+
 
 interface NotificationCenterProps {
   className?: string;
@@ -39,87 +31,134 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadNotifications();
     
-    // TODO: Set up real-time notification updates
-    // const interval = setInterval(() => {
-    //   // Check for new notifications from server
-    // }, 10000);
-    // return () => clearInterval(interval);
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const count = notifications.filter(n => !n.read).length;
+    const handleClose = () => {
+      setIsOpen(false);
+    };
+
+    if (isOpen) {
+      // Scroll events
+      window.addEventListener('scroll', handleClose, { passive: true });
+      document.addEventListener('scroll', handleClose, { passive: true });
+      
+      // Touch move events for mobile scrolling
+      document.addEventListener('touchmove', handleClose, { passive: true });
+      
+      // Main content scroll
+      const mainContent = document.querySelector('main');
+      if (mainContent) {
+        mainContent.addEventListener('scroll', handleClose, { passive: true });
+        mainContent.addEventListener('touchmove', handleClose, { passive: true });
+      }
+
+      return () => {
+        window.removeEventListener('scroll', handleClose);
+        document.removeEventListener('scroll', handleClose);
+        document.removeEventListener('touchmove', handleClose);
+        if (mainContent) {
+          mainContent.removeEventListener('scroll', handleClose);
+          mainContent.removeEventListener('touchmove', handleClose);
+        }
+      };
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const count = notifications.filter(n => !n.is_read).length;
     setUnreadCount(count);
   }, [notifications]);
 
   const loadNotifications = async () => {
     try {
-      // TODO: Replace with actual API call to get notifications
-      // const notificationsData = await notificationService.getNotifications();
-      // setNotifications(notificationsData);
-      setNotifications([]);
+      setLoading(true);
+      const notificationsData = await notificationService.getNotifications();
+      setNotifications(notificationsData);
     } catch (error) {
       console.error('Failed to load notifications:', error);
       setNotifications([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const addNewNotification = () => {
-    // TODO: This should be handled by real-time updates from the server
-    // For now, this function is disabled
+
+
+  const markAsRead = async (id: number) => {
+    try {
+      await notificationService.markAsRead(id);
+      setNotifications(prev => 
+        prev.map(notification => 
+          notification.id === id 
+            ? { ...notification, is_read: true }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   };
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
+  const markAllAsRead = async () => {
+    try {
+      await notificationService.markAllAsRead();
+      setNotifications(prev => 
+        prev.map(notification => ({ ...notification, is_read: true }))
+      );
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  };
-
-  const deleteNotification = (id: string) => {
+  const deleteNotification = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const getNotificationIcon = (type: Notification['type']) => {
+  const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'intern_created': return <Users className="h-4 w-4" />;
+      case 'task_assigned': return <Calendar className="h-4 w-4" />;
       case 'info': return <Info className="h-4 w-4" />;
       case 'success': return <CheckCircle2 className="h-4 w-4" />;
       case 'warning': return <AlertTriangle className="h-4 w-4" />;
       case 'error': return <AlertTriangle className="h-4 w-4" />;
+      default: return <Info className="h-4 w-4" />;
     }
   };
 
-  const getNotificationColor = (type: Notification['type']) => {
+  const getNotificationColor = (type: string) => {
     switch (type) {
+      case 'intern_created': return 'text-green-500 bg-green-50';
+      case 'task_assigned': return 'text-blue-500 bg-blue-50';
       case 'info': return 'text-blue-500 bg-blue-50';
       case 'success': return 'text-success bg-success/10';
       case 'warning': return 'text-warning bg-warning/10';
       case 'error': return 'text-destructive bg-destructive/10';
+      default: return 'text-blue-500 bg-blue-50';
     }
   };
 
-  const getPriorityColor = (priority: Notification['priority']) => {
+  const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'border-l-destructive';
       case 'medium': return 'border-l-warning';
       case 'low': return 'border-l-success';
+      default: return 'border-l-blue-500';
     }
   };
 
-  const formatTimeAgo = (timestamp: string) => {ntend
-    
+  const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
     const time = new Date(timestamp);
     const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
@@ -192,9 +231,9 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
                       className={cn(
                         "p-4 border-l-4 transition-all duration-200 hover:bg-muted/50 cursor-pointer animate-in slide-in-from-right-2",
                         getPriorityColor(notification.priority),
-                        !notification.read && "bg-muted/30"
+                        !notification.is_read && "bg-muted/30"
                       )}
-                      onClick={() => !notification.read && markAsRead(notification.id)}
+                      onClick={() => !notification.is_read && markAsRead(notification.id)}
                     >
                       <div className="flex items-start gap-3">
                         <div className={cn(
@@ -209,7 +248,7 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
                             <div className="flex-1">
                               <h4 className={cn(
                                 "text-sm font-medium",
-                                !notification.read && "font-semibold"
+                                !notification.is_read && "font-semibold"
                               )}>
                                 {notification.title}
                               </h4>
@@ -217,12 +256,12 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
                                 {notification.message}
                               </p>
                               <p className="text-xs text-muted-foreground mt-2">
-                                {formatTimeAgo(notification.timestamp)}
+                                {formatTimeAgo(notification.created_at)}
                               </p>
                             </div>
                             
                             <div className="flex items-center gap-1 flex-shrink-0">
-                              {!notification.read && (
+                              {!notification.is_read && (
                                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                               )}
                               <Button
@@ -239,19 +278,6 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
                             </div>
                           </div>
                           
-                          {notification.actionUrl && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="mt-2 h-6 text-xs"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log('Navigate to:', notification.actionUrl);
-                              }}
-                            >
-                              View Details
-                            </Button>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -259,21 +285,6 @@ export const NotificationCenter = ({ className }: NotificationCenterProps) => {
                 </div>
               )}
             </div>
-            
-            {notifications.length > 0 && (
-              <div className="p-3 border-t">
-                <Button
-                  variant="ghost"
-                  className="w-full text-sm"
-                  onClick={() => {
-                    setIsOpen(false);
-                    console.log('Navigate to notifications page');
-                  }}
-                >
-                  View All Notifications
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
       </PopoverContent>

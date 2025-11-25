@@ -1,12 +1,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
+import { settingsService } from '@/services/settingsService';
 import { toast } from '@/hooks/use-toast';
 
 interface User {
-  id: string;
+  id: number;
+  username: string;
   email: string;
-  name: string;
+  full_name?: string;
+  avatar_url?: string;
+  department?: string;
+  phone?: string;
+  is_active: boolean;
 }
 
 interface AuthContextType {
@@ -15,6 +21,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,16 +32,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Validate token and get user info
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const userProfile = await settingsService.getUserProfile();
+          setUser(userProfile);
+        } catch (error) {
+          localStorage.removeItem('token');
+        }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+    initAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -43,9 +53,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await authService.login(email, password);
       
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
       
-      setUser(response.user);
+      const userProfile = await settingsService.getUserProfile();
+      setUser(userProfile);
       
       toast({
         title: 'Login Successful',
@@ -67,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     setUser(null);
     navigate('/login');
     toast({
@@ -76,8 +85,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const refreshUser = async () => {
+    try {
+      const userProfile = await settingsService.getUserProfile();
+      setUser(userProfile);
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

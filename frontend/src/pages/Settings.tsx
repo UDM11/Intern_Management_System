@@ -51,6 +51,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { settingsService, UserProfile, UserProfileUpdate } from '@/services/settingsService';
+import { useAuth } from '@/context/AuthContext';
 
 interface SettingsData {
   profile: UserProfile & {
@@ -82,6 +83,7 @@ interface SettingsData {
 }
 
 export const Settings = () => {
+  const { refreshUser } = useAuth();
   const [settings, setSettings] = useState<SettingsData>({
     profile: {
       id: 0,
@@ -175,6 +177,9 @@ export const Settings = () => {
         title: 'Settings saved',
         description: 'Your profile has been updated successfully.',
       });
+      
+      // Refresh user data in navbar
+      await refreshUser();
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -257,6 +262,9 @@ export const Settings = () => {
         title: 'Success',
         description: 'Profile picture updated successfully.',
       });
+      
+      // Refresh user data in navbar
+      await refreshUser();
     } catch (error: any) {
       toast({
         title: 'Error',
