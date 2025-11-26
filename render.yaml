@@ -1,7 +1,7 @@
 services:
   - type: web
     name: intern-management-backend
-    env: python
+    runtime: python
     buildCommand: cd backend && pip install -r requirements.txt
     startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
@@ -16,9 +16,6 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: 30
 
-  - type: pserv
-    name: intern-management-db
-    env: postgresql
-    plan: free
-    databaseName: intern_management
-    user: intern_user
+databases:
+  - name: intern-management-db
+    plan: free 
