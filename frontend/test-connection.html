@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Railway Connection</title>
+</head>
+<body>
+    <h1>Test Railway Backend Connection</h1>
+    <button onclick="testConnection()">Test Connection</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const railwayUrl = prompt("Enter your Railway URL (e.g., https://your-app.railway.app):");
+            if (!railwayUrl) return;
+            
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${railwayUrl}/health`);
+                const data = await response.json();
+                result.innerHTML = `✅ Success: ${JSON.stringify(data)}`;
+            } catch (error) {
+                result.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

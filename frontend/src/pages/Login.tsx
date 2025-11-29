@@ -10,11 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Mail, Lock, Eye, EyeOff, Shield, Users, TrendingUp, Sparkles } from 'lucide-react';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ emailOrUsername?: string; password?: string }>({});
   const [mounted, setMounted] = useState(false);
   
   const { login, isAuthenticated } = useAuth();
@@ -31,12 +31,10 @@ const Login = () => {
   }
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { emailOrUsername?: string; password?: string } = {};
     
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email is invalid';
+    if (!emailOrUsername) {
+      newErrors.emailOrUsername = 'Email or username is required';
     }
     
     if (!password) {
@@ -56,7 +54,7 @@ const Login = () => {
     
     setIsLoading(true);
     try {
-      await login(email, password);
+      await login(emailOrUsername, password);
     } catch (error) {
       console.error('Login error:', error);
     } finally {
@@ -167,31 +165,31 @@ const Login = () => {
                 <Separator className="bg-slate-200 dark:bg-slate-700" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="bg-white dark:bg-slate-900 px-2 sm:px-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                    or continue with email
+                    or continue with credentials
                   </span>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Email Address
+                  <Label htmlFor="emailOrUsername" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email or Username
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="admin@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="emailOrUsername"
+                      type="text"
+                      placeholder="admin or admin@example.com"
+                      value={emailOrUsername}
+                      onChange={(e) => setEmailOrUsername(e.target.value)}
                       className={`pl-10 h-11 sm:h-12 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 ${
-                        errors.email ? 'border-red-500 focus:border-red-500' : ''
+                        errors.emailOrUsername ? 'border-red-500 focus:border-red-500' : ''
                       }`}
                     />
                   </div>
-                  {errors.email && (
-                    <p className="text-sm text-red-500 animate-in slide-in-from-top duration-200">{errors.email}</p>
+                  {errors.emailOrUsername && (
+                    <p className="text-sm text-red-500 animate-in slide-in-from-top duration-200">{errors.emailOrUsername}</p>
                   )}
                 </div>
                 
